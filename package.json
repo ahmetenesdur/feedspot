@@ -1,0 +1,44 @@
+{
+  "name": "tech-ai-aggregate",
+  "version": "1.0.0",
+  "description": "Codex Automation helper for a daily Turkish Tech/AI digest.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "send-discord": "node src/post-to-discord.mjs",
+    "write-report": "node src/write-report.mjs",
+    "deliver-pending": "node src/deliver-pending.mjs",
+    "mark-delivered": "node src/deliver-pending.mjs --mark-existing",
+    "dry-run-discord": "node src/post-to-discord.mjs --dry-run",
+    "gateway:install": "node scripts/gateway.mjs install",
+    "gateway:uninstall": "node scripts/gateway.mjs uninstall",
+    "gateway:start": "node scripts/gateway.mjs start",
+    "gateway:stop": "node scripts/gateway.mjs stop",
+    "gateway:restart": "node scripts/gateway.mjs restart",
+    "gateway:status": "node scripts/gateway.mjs status",
+    "gateway:logs": "node scripts/gateway.mjs logs",
+    "gateway:run": "node scripts/gateway.mjs run",
+    "gateway:mark-delivered": "node scripts/gateway.mjs mark-delivered",
+    "gateway:doctor": "node scripts/gateway.mjs doctor",
+    "delivery:install": "node scripts/gateway.mjs install",
+    "delivery:uninstall": "node scripts/gateway.mjs uninstall",
+    "delivery:start": "node scripts/gateway.mjs start",
+    "delivery:stop": "node scripts/gateway.mjs stop",
+    "delivery:restart": "node scripts/gateway.mjs restart",
+    "delivery:status": "node scripts/gateway.mjs status",
+    "delivery:logs": "node scripts/gateway.mjs logs",
+    "delivery:run": "node scripts/gateway.mjs run",
+    "delivery:mark-delivered": "node scripts/gateway.mjs mark-delivered",
+    "check-feeds": "node src/check-feeds.mjs",
+    "check": "node --check src/post-to-discord.mjs && node --check src/write-report.mjs && node --check src/deliver-pending.mjs && node --check src/check-config.mjs && node --check src/check-feeds.mjs && node --check scripts/gateway.mjs && node src/check-config.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "rssLookbackHours": 48,
+  "maxCandidates": 180,
+  "timezone": "Europe/Istanbul",
+  "audience": [
+    "TypeScript / Next.js full-stack developers",
+    "AI agent and LLM tooling builders",
+    "developer tool, open-source, web infrastructure, security, and Web3 infrastructure practitioners"
+  ],
+  "editorialWorkflow": {
+    "minimumIndependentSourcesForNonPrimaryClaims": 2,
+    "preferPrimarySources": true,
+    "mustOpenAndVerifyCandidateLinks": true,
+    "dedupeBy": ["canonicalUrl", "title", "underlyingAnnouncement", "repository"],
+    "rankBy": [
+      "direct developer impact",
+      "security or supply-chain urgency",
+      "AI agent / LLM tooling relevance",
+      "TypeScript, Next.js, runtime, or infrastructure relevance",
+      "open-source adoption signal",
+      "Web3 infrastructure impact"
+    ],
+    "rejectIf": [
+      "source link is missing or circular",
+      "claim is only social-media speculation",
+      "announcement is marketing-only with no developer action",
+      "date cannot be verified",
+      "same story was already covered in recent automation memory without a material update"
+    ]
+  },
+  "rss": [
+    {
+      "name": "Hacker News",
+      "type": "rss",
+      "url": "https://news.ycombinator.com/rss"
+    },
+    {
+      "name": "GitHub Blog",
+      "type": "rss",
+      "url": "https://github.blog/feed/"
+    },
+    {
+      "name": "GitHub Changelog",
+      "type": "rss",
+      "url": "https://github.blog/changelog/feed/"
+    },
+    {
+      "name": "Cloudflare Blog",
+      "type": "rss",
+      "url": "https://blog.cloudflare.com/rss/"
+    },
+    {
+      "name": "Hugging Face Blog",
+      "type": "rss",
+      "url": "https://huggingface.co/blog/feed.xml"
+    },
+    {
+      "name": "OpenAI News",
+      "type": "rss",
+      "url": "https://openai.com/news/rss.xml"
+    },
+    {
+      "name": "Google Developers Blog",
+      "type": "rss",
+      "url": "https://developers.googleblog.com/feeds/posts/default"
+    },
+    {
+      "name": "Google AI Blog",
+      "type": "rss",
+      "url": "https://blog.google/technology/ai/rss/"
+    },
+    {
+      "name": "Vercel Atom Feed",
+      "type": "rss",
+      "url": "https://vercel.com/atom"
+    },
+    {
+      "name": "Next.js Blog",
+      "type": "rss",
+      "url": "https://nextjs.org/feed.xml"
+    },
+    {
+      "name": "Node.js Blog",
+      "type": "rss",
+      "url": "https://nodejs.org/en/feed/blog.xml"
+    },
+    {
+      "name": "Microsoft DevBlogs TypeScript",
+      "type": "rss",
+      "url": "https://devblogs.microsoft.com/typescript/feed/"
+    },
+    {
+      "name": "AWS Developer Tools Blog",
+      "type": "rss",
+      "url": "https://aws.amazon.com/blogs/developer/feed/"
+    },
+    {
+      "name": "AWS Machine Learning Blog",
+      "type": "rss",
+      "url": "https://aws.amazon.com/blogs/machine-learning/feed/"
+    },
+    {
+      "name": "Google Cloud Blog Developers",
+      "type": "rss",
+      "url": "https://cloudblog.withgoogle.com/rss"
+    },
+    {
+      "name": "Docker Blog",
+      "type": "rss",
+      "url": "https://www.docker.com/blog/feed/"
+    },
+    {
+      "name": "Kubernetes Blog",
+      "type": "rss",
+      "url": "https://kubernetes.io/feed.xml"
+    },
+    {
+      "name": "CISA Alerts",
+      "type": "rss",
+      "url": "https://www.cisa.gov/news.xml"
+    },
+    {
+      "name": "Trail of Bits Blog",
+      "type": "rss",
+      "url": "https://blog.trailofbits.com/feed/"
+    },
+    {
+      "name": "Ethereum Foundation Blog",
+      "type": "rss",
+      "url": "https://blog.ethereum.org/feed.xml"
+    },
+    {
+      "name": "Chainlink Blog",
+      "type": "rss",
+      "url": "https://blog.chain.link/rss/"
+    },
+    {
+      "name": "The Verge AI",
+      "type": "rss",
+      "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+    },
+    {
+      "name": "Ars Technica AI",
+      "type": "rss",
+      "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"
+    },
+    {
+      "name": "Wired AI",
+      "type": "rss",
+      "url": "https://www.wired.com/feed/tag/ai/latest/rss"
+    }
+  ],
+  "officialSites": [
+    {
+      "name": "OpenAI",
+      "url": "https://openai.com/news/"
+    },
+    {
+      "name": "OpenAI Platform Docs",
+      "url": "https://platform.openai.com/docs"
+    },
+    {
+      "name": "Anthropic",
+      "url": "https://www.anthropic.com/news"
+    },
+    {
+      "name": "Google AI for Developers",
+      "url": "https://ai.google.dev/"
+    },
+    {
+      "name": "GitHub Changelog",
+      "url": "https://github.blog/changelog/"
+    },
+    {
+      "name": "Vercel Changelog",
+      "url": "https://vercel.com/changelog"
+    },
+    {
+      "name": "Next.js Blog",
+      "url": "https://nextjs.org/blog"
+    },
+    {
+      "name": "Node.js Blog",
+      "url": "https://nodejs.org/en/blog"
+    },
+    {
+      "name": "Cloudflare Blog",
+      "url": "https://blog.cloudflare.com/"
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog"
+    },
+    {
+      "name": "CISA",
+      "url": "https://www.cisa.gov/news-events"
+    },
+    {
+      "name": "Socket",
+      "url": "https://socket.dev/blog"
+    },
+    {
+      "name": "Microsoft TypeScript",
+      "url": "https://devblogs.microsoft.com/typescript/"
+    },
+    {
+      "name": "NIST AI",
+      "url": "https://www.nist.gov/artificial-intelligence"
+    },
+    {
+      "name": "Ethereum Blog",
+      "url": "https://blog.ethereum.org/"
+    }
+  ],
+  "webSearch": {
+    "enabled": true,
+    "lookbackHours": 48,
+    "maxQueries": 28,
+    "recencyDays": 3,
+    "queries": [
+      "AI agents developer tools release security",
+      "LLM tooling MCP agents API release",
+      "TypeScript JavaScript developer tools release",
+      "Next.js Vercel web infrastructure changelog",
+      "Node.js runtime security release",
+      "npm PyPI supply chain malware JavaScript",
+      "GitHub Copilot coding agent security changelog",
+      "Cloudflare Workers AI developer changelog",
+      "open source LLM model release benchmark contamination",
+      "RAG vector database embeddings developer release",
+      "browser automation AI agent developer tool",
+      "Web3 crypto infrastructure security exploit developer"
+    ],
+    "officialDomainQueries": [
+      "site:openai.com/news OR site:openai.com/index OpenAI API developer agents",
+      "site:platform.openai.com/docs OpenAI API changelog agents",
+      "site:anthropic.com/news Claude API agents developer",
+      "site:github.blog/changelog GitHub Copilot MCP Actions security",
+      "site:vercel.com/changelog Vercel Next.js AI Gateway security",
+      "site:nextjs.org/blog Next.js release security",
+      "site:nodejs.org/en/blog Node.js release vulnerability",
+      "site:blog.cloudflare.com Workers AI D1 R2 security",
+      "site:huggingface.co/blog agents LLM tooling model release",
+      "site:developers.googleblog.com Gemini API developer agents",
+      "site:ai.google.dev Gemini API release notes",
+      "site:cisa.gov software supply chain AI security",
+      "site:nist.gov AI standards security model evaluation",
+      "site:socket.dev/blog npm PyPI malware supply chain",
+      "site:blog.ethereum.org Ethereum protocol upgrade security"
+    ]
+  },
+  "githubSearch": {
+    "enabled": true,
+    "languages": ["TypeScript", "JavaScript", "Python", "Rust", "Go"],
+    "topics": [
+      "ai-agent",
+      "llm",
+      "mcp",
+      "rag",
+      "developer-tools",
+      "nextjs",
+      "typescript",
+      "security",
+      "supply-chain",
+      "web3"
+    ],
+    "createdWithinHours": 168,
+    "updatedWithinHours": 72,
+    "minStars": 50,
+    "perPage": 30,
+    "queries": [
+      "topic:ai-agent stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:mcp stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:llm language:TypeScript stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:rag language:TypeScript stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:developer-tools language:TypeScript stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:nextjs stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:security language:JavaScript stars:>50 pushed:>{YYYY-MM-DD}",
+      "topic:web3 language:TypeScript stars:>50 pushed:>{YYYY-MM-DD}"
+    ]
+  }
+}
