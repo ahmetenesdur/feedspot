@@ -11,6 +11,16 @@
       "name": "gaming",
       "match": "-gaming-digest.md",
       "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
+    },
+    {
+      "name": "gaming-weekly",
+      "match": "-gaming-weekly.md",
+      "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
+    },
+    {
+      "name": "gaming-watch",
+      "match": "-gaming-watch.md",
+      "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
     }
   ]
 }

@@ -1,12 +1,46 @@
 {
   "digest": {
     "slug": "gaming",
-    "title": "Turkish Gaming Digest",
-    "reportPathTemplate": "reports/YYYY-MM-DD-gaming-digest.md",
+    "title": "Weekly Turkish Gaming Digest",
+    "reportPathTemplate": "reports/YYYY-MM-DD-gaming-weekly.md",
     "language": "tr"
   },
-  "rssLookbackHours": 48,
-  "maxCandidates": 160,
+  "cadence": {
+    "primary": {
+      "name": "Weekly Gaming Digest",
+      "schedule": "weekly",
+      "recommendedDay": "Sunday",
+      "lookbackHours": 168,
+      "reportPathTemplate": "reports/YYYY-MM-DD-gaming-weekly.md",
+      "postWhenNoMajorNews": true,
+      "guidance": [
+        "Use this as the main gaming report format.",
+        "Rank the week across platform, subscription, major release, update, industry, esports, and tracked-game developments.",
+        "Include smaller tracked-game updates only when they matter to active players or explain a coming action."
+      ]
+    },
+    "watch": {
+      "name": "Gaming Watch",
+      "schedule": "daily",
+      "lookbackHours": 48,
+      "reportPathTemplate": "reports/YYYY-MM-DD-gaming-watch.md",
+      "postOnlyIfMaterial": true,
+      "skipReportWhenNoMaterialUpdates": true,
+      "triggerIf": [
+        "important tracked-game patch, maintenance, event, roadmap, monetization, server, release, or availability update",
+        "major platform/store/subscription update affecting PC, PlayStation, Xbox, Nintendo, Steam, Epic Games Store, Game Pass, or PlayStation Plus players",
+        "major game announcement, release date, delay, cancellation, studio closure, acquisition, layoff, or policy change",
+        "credible urgent player-impact issue such as outage, rollback, exploit response, account/security action, or disruptive balance change"
+      ],
+      "rejectIfOnly": [
+        "routine shop rotation, minor cosmetic post, creator drama, low-signal rumor, review-score-only item, evergreen guide, or ordinary deal roundup",
+        "tracked games have no verified material update",
+        "general gaming news exists but would be better saved for the weekly digest"
+      ]
+    }
+  },
+  "rssLookbackHours": 168,
+  "maxCandidates": 240,
   "timezone": "Europe/Istanbul",
   "audience": [
     "PC, PlayStation, Xbox, Nintendo ve mobil oyun haberlerini takip eden oyuncular",
@@ -16,13 +50,14 @@
   "trackedGames": {
     "enabled": true,
     "reportSectionTitle": "Takipteki Oyunlar",
-    "lookbackHours": 72,
-    "includeWhenNoMajorNews": true,
+    "lookbackHours": 168,
+    "includeWhenNoMajorNews": false,
     "guidance": [
       "For each enabled tracked game, check official sources first, then credible community/news sources.",
       "Prefer patch notes, maintenance notices, release windows, monetization/store changes, esports calendar changes, events, server issues, roadmap posts, and regional availability or pricing impact.",
       "Reject routine shop rotations, minor social posts, content creator drama, unsupported leaks, and low-signal community speculation.",
-      "If a tracked game has no material verified update, add one compact Turkish sentence instead of forcing filler."
+      "In Gaming Watch mode, do not create a report solely to say there is no update.",
+      "In Weekly Gaming Digest mode, mention quiet tracked games only when the absence itself is useful context."
     ],
     "games": [
       {
@@ -304,9 +339,9 @@
   ],
   "webSearch": {
     "enabled": true,
-    "lookbackHours": 48,
+    "lookbackHours": 168,
     "maxQueries": 30,
-    "recencyDays": 3,
+    "recencyDays": 8,
     "queries": [
       "video game news release date delay trailer update",
       "new game announcement showcase trailer PC PlayStation Xbox Nintendo",

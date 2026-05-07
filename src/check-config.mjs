@@ -33,6 +33,48 @@ function assertNamedUrls(items, label) {
   }
 }
 
+function assertReportPathTemplate(value, label) {
+  assert(typeof value === "string" && value.trim(), `${label} is required.`);
+  assert(value.startsWith("reports/"), `${label} must be under reports/.`);
+  assert(value.includes("YYYY-MM-DD"), `${label} must include YYYY-MM-DD.`);
+  assert(value.endsWith(".md"), `${label} must target a Markdown file.`);
+}
+
+function validateCadence(cadence, label) {
+  if (!cadence) return;
+
+  assert(cadence.primary, `${label}: cadence.primary is required when cadence is present.`);
+  assert(cadence.watch, `${label}: cadence.watch is required when cadence is present.`);
+
+  assert(typeof cadence.primary.name === "string" && cadence.primary.name.trim(), `${label}: cadence.primary.name is required.`);
+  assert(cadence.primary.schedule === "weekly", `${label}: cadence.primary.schedule must be weekly.`);
+  assert(typeof cadence.primary.recommendedDay === "string" && cadence.primary.recommendedDay.trim(), `${label}: cadence.primary.recommendedDay is required.`);
+  assert(Number.isInteger(cadence.primary.lookbackHours), `${label}: cadence.primary.lookbackHours must be an integer.`);
+  assert(cadence.primary.lookbackHours >= 120, `${label}: cadence.primary.lookbackHours should cover most of a week.`);
+  assertReportPathTemplate(cadence.primary.reportPathTemplate, `${label}: cadence.primary.reportPathTemplate`);
+  assert(
+    cadence.primary.postWhenNoMajorNews === true || cadence.primary.postWhenNoMajorNews === false,
+    `${label}: cadence.primary.postWhenNoMajorNews must be boolean.`,
+  );
+  assert(Array.isArray(cadence.primary.guidance) && cadence.primary.guidance.length >= 2, `${label}: cadence.primary.guidance should include editorial rules.`);
+
+  assert(typeof cadence.watch.name === "string" && cadence.watch.name.trim(), `${label}: cadence.watch.name is required.`);
+  assert(cadence.watch.schedule === "daily", `${label}: cadence.watch.schedule must be daily.`);
+  assert(Number.isInteger(cadence.watch.lookbackHours), `${label}: cadence.watch.lookbackHours must be an integer.`);
+  assert(cadence.watch.lookbackHours >= 24, `${label}: cadence.watch.lookbackHours should cover at least 24 hours.`);
+  assertReportPathTemplate(cadence.watch.reportPathTemplate, `${label}: cadence.watch.reportPathTemplate`);
+  assert(
+    cadence.watch.postOnlyIfMaterial === true || cadence.watch.postOnlyIfMaterial === false,
+    `${label}: cadence.watch.postOnlyIfMaterial must be boolean.`,
+  );
+  assert(
+    cadence.watch.skipReportWhenNoMaterialUpdates === true || cadence.watch.skipReportWhenNoMaterialUpdates === false,
+    `${label}: cadence.watch.skipReportWhenNoMaterialUpdates must be boolean.`,
+  );
+  assert(Array.isArray(cadence.watch.triggerIf) && cadence.watch.triggerIf.length >= 3, `${label}: cadence.watch.triggerIf should include trigger rules.`);
+  assert(Array.isArray(cadence.watch.rejectIfOnly) && cadence.watch.rejectIfOnly.length >= 2, `${label}: cadence.watch.rejectIfOnly should include rejection rules.`);
+}
+
 function validateTrackedGames(trackedGames, label) {
   if (!trackedGames) return;
 
@@ -70,6 +112,10 @@ function validateTrackedGames(trackedGames, label) {
 }
 
 function validateSources(sources, label) {
+  if (sources.digest) {
+    assertReportPathTemplate(sources.digest.reportPathTemplate, `${label}: digest.reportPathTemplate`);
+  }
+
   assert(Number.isInteger(sources.rssLookbackHours), `${label}: rssLookbackHours must be an integer.`);
   assert(sources.rssLookbackHours >= 24, `${label}: rssLookbackHours should cover at least 24 hours.`);
   assert(Number.isInteger(sources.maxCandidates), `${label}: maxCandidates must be an integer.`);
@@ -78,6 +124,7 @@ function validateSources(sources, label) {
   assert(Array.isArray(sources.audience), `${label}: audience must be an array.`);
   assert(sources.audience.length >= 2, `${label}: audience should describe the intended readers.`);
 
+  validateCadence(sources.cadence, label);
   validateTrackedGames(sources.trackedGames, label);
 
   assert(sources.editorialWorkflow, `${label}: editorialWorkflow is required.`);
