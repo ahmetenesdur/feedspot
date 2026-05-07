@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { mkdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
@@ -16,6 +16,7 @@ const plistPath = plistPathFor(label);
 const reportsDir = path.join(repoRoot, "reports");
 const logsDir = path.join(repoRoot, "logs");
 const gatewayDir = path.join(repoRoot, ".gateway");
+const discordRoutesPath = path.join(repoRoot, "config", "discord-routes.json");
 const logPath = path.join(logsDir, "delivery.log");
 const command = "npm run deliver-pending";
 
@@ -199,25 +200,79 @@ function markDelivered() {
   run(process.execPath, ["src/deliver-pending.mjs", "--mark-existing"]);
 }
 
+async function readDiscordRoutes() {
+  return JSON.parse(await readFile(discordRoutesPath, "utf8"));
+}
+
+function discordWebhookLooksValid(webhook) {
+  try {
+    const url = new URL(webhook);
+    return (
+      url.protocol === "https:" &&
+      /(^|\.)discord(app)?\.com$/.test(url.hostname) &&
+      url.pathname.includes("/api/webhooks/")
+    );
+  } catch {
+    return false;
+  }
+}
+
+function discordRouteChecks(discordRoutes) {
+  const defaultWebhookEnv = discordRoutes.defaultWebhookEnv || "DISCORD_WEBHOOK_URL";
+  const checks = [];
+  const defaultWebhook = process.env[defaultWebhookEnv] || "";
+
+  checks.push([
+    "Default Discord webhook env",
+    true,
+    defaultWebhook ? `${defaultWebhookEnv} set` : `${defaultWebhookEnv} not set; used only for unmatched reports`,
+  ]);
+
+  if (defaultWebhook) {
+    checks.push([
+      "Default Discord webhook format",
+      discordWebhookLooksValid(defaultWebhook),
+      "checked without printing value",
+    ]);
+  }
+
+  for (const route of discordRoutes.routes || []) {
+    const primaryWebhook = process.env[route.webhookEnv] || "";
+    const fallbackWebhook = route.fallbackWebhookEnv ? process.env[route.fallbackWebhookEnv] || "" : "";
+    const activeEnv = primaryWebhook ? route.webhookEnv : fallbackWebhook ? route.fallbackWebhookEnv : null;
+    const activeWebhook = primaryWebhook || fallbackWebhook;
+    const requiredEnvs = [route.webhookEnv, route.fallbackWebhookEnv].filter(Boolean).join(" or ");
+
+    checks.push([
+      `Discord route ${route.name} env`,
+      Boolean(activeEnv),
+      activeEnv
+        ? activeEnv === route.fallbackWebhookEnv
+          ? `using fallback ${activeEnv}`
+          : `using ${activeEnv}`
+        : `missing ${requiredEnvs}`,
+    ]);
+
+    checks.push([
+      `Discord route ${route.name} format`,
+      Boolean(activeWebhook) && discordWebhookLooksValid(activeWebhook),
+      activeWebhook ? "checked without printing value" : `missing ${requiredEnvs}`,
+    ]);
+  }
+
+  return checks;
+}
+
 async function doctor() {
   const installed = spawnSync("test", ["-f", plistPath]).status === 0;
   const loaded = isLoaded();
-  const webhook = process.env.DISCORD_WEBHOOK_URL || "";
-  let webhookLooksValid = false;
-
-  try {
-    const url = new URL(webhook);
-    webhookLooksValid =
-      url.protocol === "https:" &&
-      /(^|\.)discord(app)?\.com$/.test(url.hostname) &&
-      url.pathname.includes("/api/webhooks/");
-  } catch {}
+  const discordRoutes = await readDiscordRoutes();
 
   const checks = [
     ["Node version", Number(process.versions.node.split(".")[0]) >= 22, process.versions.node],
     ["Repository root", repoRoot.endsWith("feedspot"), repoRoot],
-    ["Discord webhook env", Boolean(webhook), webhook ? "set" : "missing"],
-    ["Discord webhook format", webhookLooksValid, webhook ? "checked without printing value" : "missing"],
+    ["Discord routes config", true, discordRoutesPath],
+    ...discordRouteChecks(discordRoutes),
     ["Reports directory", await pathExists(reportsDir), reportsDir],
     ["Logs directory", await pathExists(logsDir), logsDir],
     ["Gateway state directory", await pathExists(gatewayDir), gatewayDir],

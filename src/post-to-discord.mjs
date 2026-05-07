@@ -7,7 +7,8 @@ const MAX_DISCORD_CONTENT_LENGTH = 1800;
 const MAX_RETRIES = 5;
 const SUPPRESS_EMBEDS_FLAG = 1 << 2;
 
-const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+const discordRoutesPath = new URL("../config/discord-routes.json", import.meta.url);
+const discordRoutes = JSON.parse(await readFile(discordRoutesPath, "utf8"));
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || process.env.DISCORD_DRY_RUN === "1";
 const jsonOutput = args.includes("--json");
@@ -81,7 +82,40 @@ function titleFromReport(report, filePath) {
     .join(" ");
 }
 
-function webhookUrlWithWait() {
+function routeForReport(filePath) {
+  const basename = path.basename(filePath);
+  const route = discordRoutes.routes?.find((candidate) => basename.endsWith(candidate.match));
+  const defaultWebhookEnv = discordRoutes.defaultWebhookEnv || "DISCORD_WEBHOOK_URL";
+
+  if (!route) {
+    return {
+      name: "default",
+      webhookEnv: defaultWebhookEnv,
+      fallbackWebhookEnv: null,
+    };
+  }
+
+  return {
+    name: route.name,
+    webhookEnv: route.webhookEnv,
+    fallbackWebhookEnv: route.fallbackWebhookEnv || null,
+  };
+}
+
+function resolveWebhook(route) {
+  const candidates = [route.webhookEnv, route.fallbackWebhookEnv].filter(Boolean);
+  const activeWebhookEnv = candidates.find((envName) => process.env[envName]);
+
+  return {
+    routeName: route.name,
+    configuredWebhookEnv: route.webhookEnv,
+    webhookEnv: activeWebhookEnv || route.webhookEnv,
+    webhookUrl: activeWebhookEnv ? process.env[activeWebhookEnv] : "",
+    fallbackUsed: Boolean(activeWebhookEnv && activeWebhookEnv === route.fallbackWebhookEnv),
+  };
+}
+
+function webhookUrlWithWait(webhookUrl) {
   const url = new URL(webhookUrl);
   url.searchParams.set("wait", "true");
   return url.toString();
@@ -99,11 +133,11 @@ function formatFetchError(error) {
   return parts.join(" ");
 }
 
-async function postDiscordChunk(content, attempt = 1) {
+async function postDiscordChunk(content, webhookUrl, attempt = 1) {
   let response;
 
   try {
-    response = await fetch(webhookUrlWithWait(), {
+    response = await fetch(webhookUrlWithWait(webhookUrl), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -124,7 +158,7 @@ async function postDiscordChunk(content, attempt = 1) {
     const data = await response.json().catch(() => ({}));
     const retryAfter = Number(data.retry_after ?? response.headers.get("retry-after") ?? 2);
     await sleep(Math.ceil(retryAfter * 1000));
-    return postDiscordChunk(content, attempt + 1);
+    return postDiscordChunk(content, webhookUrl, attempt + 1);
   }
 
   if (!response.ok) {
@@ -148,14 +182,17 @@ async function main() {
     );
   }
 
-  if (!webhookUrl && !dryRun) {
-    throw new Error("DISCORD_WEBHOOK_URL is missing.");
-  }
+  const route = routeForReport(reportPath);
+  const webhook = resolveWebhook(route);
 
   const report = await readFile(reportPath, "utf8");
 
   if (report.trim().length === 0) {
     throw new Error("Report is empty.");
+  }
+
+  if (!webhook.webhookUrl && !dryRun) {
+    throw new Error(`${webhook.configuredWebhookEnv} is missing for ${webhook.routeName} Discord route.`);
   }
 
   const chunks = splitDiscordMessage(report);
@@ -168,13 +205,16 @@ async function main() {
       reportPath,
       chunks: chunks.length,
       suppressEmbeds,
+      route: webhook.routeName,
+      webhookEnv: webhook.webhookEnv,
+      fallbackUsed: webhook.fallbackUsed,
     };
 
     if (jsonOutput) {
       console.log(JSON.stringify(summary));
     } else {
       console.log(
-        `Dry run: ${chunks.length} Discord message(s) would be sent from ${reportPath} (${embedMode}).`,
+        `Dry run: ${chunks.length} Discord message(s) would be sent from ${reportPath} via ${webhook.routeName} route using ${webhook.webhookEnv} (${embedMode}).`,
       );
     }
     return;
@@ -188,7 +228,7 @@ async function main() {
         ? `**${reportTitle} - Part ${index + 1}/${chunks.length}**\n\n`
         : "";
 
-    const message = await postDiscordChunk(`${header}${chunks[index]}`);
+    const message = await postDiscordChunk(`${header}${chunks[index]}`, webhook.webhookUrl);
     messages.push({
       index: index + 1,
       ...message,
@@ -201,6 +241,9 @@ async function main() {
     reportPath,
     chunks: chunks.length,
     suppressEmbeds,
+    route: webhook.routeName,
+    webhookEnv: webhook.webhookEnv,
+    fallbackUsed: webhook.fallbackUsed,
     messages,
   };
 

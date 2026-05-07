@@ -1,0 +1,16 @@
+{
+  "defaultWebhookEnv": "DISCORD_WEBHOOK_URL",
+  "routes": [
+    {
+      "name": "tech-ai",
+      "match": "-tech-ai-digest.md",
+      "webhookEnv": "DISCORD_TECH_AI_WEBHOOK_URL",
+      "fallbackWebhookEnv": "DISCORD_WEBHOOK_URL"
+    },
+    {
+      "name": "gaming",
+      "match": "-gaming-digest.md",
+      "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
+    }
+  ]
+}

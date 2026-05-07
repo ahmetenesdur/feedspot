@@ -29,7 +29,14 @@ No Discord bot, server, GitHub Actions workflow, or model API client is required
 Required in local `.env` or the delivery gateway environment:
 
 ```bash
-DISCORD_WEBHOOK_URL=your_discord_webhook_url
+DISCORD_WEBHOOK_URL=your_existing_or_default_discord_webhook_url
+DISCORD_GAMING_WEBHOOK_URL=your_gaming_discord_webhook_url
+```
+
+Optional, if the Tech/AI digest should also use an explicit route-specific webhook instead of the default webhook:
+
+```bash
+DISCORD_TECH_AI_WEBHOOK_URL=your_tech_ai_discord_webhook_url
 ```
 
 Optional for Codex/tooling workflows:
@@ -46,7 +53,7 @@ DISCORD_SUPPRESS_EMBEDS=0
 
 Link previews are suppressed by default. Set `DISCORD_SUPPRESS_EMBEDS=0` only if Discord should expand source URLs into preview cards.
 
-`DISCORD_WEBHOOK_URL` is never printed or logged.
+Discord webhook URLs are never printed or logged.
 
 ## Local Setup
 
@@ -70,11 +77,12 @@ Preferred write pattern:
 
 ```bash
 npm run write-report -- reports/YYYY-MM-DD-tech-ai-digest.md < /path/to/generated-report.md
+npm run write-report -- reports/YYYY-MM-DD-gaming-digest.md < /path/to/generated-gaming-report.md
 ```
 
 The helper writes to `.gateway/tmp/reports/`, fsyncs the temporary file, then renames it into `reports/`. The final rename is atomic on the same repository filesystem, so the gateway only sees complete Markdown reports.
 
-Codex Automation should follow the same rule if it writes the file itself: write to a temporary file outside `reports/`, then rename to `reports/YYYY-MM-DD-tech-ai-digest.md`.
+Codex Automation should follow the same rule if it writes the file itself: write to a temporary file outside `reports/`, then rename to the final report path.
 
 ## Local Delivery Gateway
 
@@ -131,6 +139,7 @@ Send one report directly:
 
 ```bash
 npm run send-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
+npm run send-discord -- reports/YYYY-MM-DD-gaming-digest.md
 ```
 
 Send all unsent or changed reports once:
@@ -143,7 +152,18 @@ Preview how many Discord messages would be sent without touching the webhook:
 
 ```bash
 npm run dry-run-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-gaming-digest.md
 ```
+
+## Discord Routing
+
+Discord routing lives in `config/discord-routes.json`.
+
+- `reports/*-tech-ai-digest.md` uses `DISCORD_TECH_AI_WEBHOOK_URL` when set, otherwise it falls back to `DISCORD_WEBHOOK_URL`.
+- `reports/*-gaming-digest.md` uses `DISCORD_GAMING_WEBHOOK_URL`.
+- Unmatched report names use `DISCORD_WEBHOOK_URL`.
+
+The gateway remains a single LaunchAgent. It watches `reports/`, sends each Markdown report to the route selected by filename, and keeps one shared delivery state file.
 
 ## Digest Configurations
 

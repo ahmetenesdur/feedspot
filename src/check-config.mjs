@@ -3,6 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const configDir = new URL("../config/", import.meta.url);
+const discordRoutesPath = new URL("discord-routes.json", configDir);
 const requestedConfigs = process.argv.slice(2);
 
 function assert(condition, message) {
@@ -19,6 +20,10 @@ function assertUniqueUrls(items, label) {
     duplicates.length === 0,
     `${label} contains duplicate URL(s): ${[...new Set(duplicates)].join(", ")}`,
   );
+}
+
+function isDiscordWebhookEnvName(value) {
+  return typeof value === "string" && /^DISCORD(?:_[A-Z0-9]+)*_WEBHOOK_URL$/.test(value);
 }
 
 function assertNamedUrls(items, label) {
@@ -85,6 +90,44 @@ function validateSources(sources, label) {
   }
 }
 
+function validateDiscordRoutes(discordRoutes, label) {
+  assert(
+    typeof discordRoutes.defaultWebhookEnv === "string" && discordRoutes.defaultWebhookEnv.trim(),
+    `${label}: defaultWebhookEnv is required.`,
+  );
+  assert(
+    isDiscordWebhookEnvName(discordRoutes.defaultWebhookEnv),
+    `${label}: defaultWebhookEnv should name a Discord webhook environment variable.`,
+  );
+  assert(Array.isArray(discordRoutes.routes), `${label}: routes must be an array.`);
+  assert(discordRoutes.routes.length >= 2, `${label}: routes should include the known digest destinations.`);
+
+  const names = new Set();
+  const matches = new Set();
+
+  for (const [index, route] of discordRoutes.routes.entries()) {
+    assert(typeof route.name === "string" && route.name.trim(), `${label}: routes[${index}].name is required.`);
+    assert(!names.has(route.name), `${label}: duplicate route name ${route.name}.`);
+    names.add(route.name);
+
+    assert(typeof route.match === "string" && route.match.endsWith(".md"), `${label}: routes[${index}].match must target Markdown reports.`);
+    assert(!matches.has(route.match), `${label}: duplicate route match ${route.match}.`);
+    matches.add(route.match);
+
+    assert(
+      isDiscordWebhookEnvName(route.webhookEnv),
+      `${label}: routes[${index}].webhookEnv should name a Discord webhook environment variable.`,
+    );
+
+    if (route.fallbackWebhookEnv) {
+      assert(
+        isDiscordWebhookEnvName(route.fallbackWebhookEnv),
+        `${label}: routes[${index}].fallbackWebhookEnv should name a Discord webhook environment variable.`,
+      );
+    }
+  }
+}
+
 async function configTargets() {
   if (requestedConfigs.length > 0) {
     return requestedConfigs.map((configPath) => ({
@@ -106,6 +149,9 @@ async function configTargets() {
 const targets = await configTargets();
 
 assert(targets.length > 0, "No source configuration files found.");
+
+validateDiscordRoutes(JSON.parse(await readFile(discordRoutesPath, "utf8")), "config/discord-routes.json");
+console.log("config/discord-routes.json: Discord routing configuration looks usable.");
 
 for (const target of targets) {
   const sources = JSON.parse(await readFile(target.url, "utf8"));
