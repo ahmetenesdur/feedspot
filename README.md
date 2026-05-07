@@ -179,9 +179,12 @@ The automation should treat each file as a research brief, not as a complete cra
 - `webSearch.queries` gives broad topical searches for fresh stories.
 - `webSearch.officialDomainQueries` gives primary-source searches for high-signal vendors and standards/security bodies.
 - `githubSearch`, when present, defines repository discovery preferences for new or newly active developer tooling.
+- `trackedGames`, when present, defines user-selected games to check every gaming digest run.
 - `editorialWorkflow` defines dedupe, ranking, and rejection rules.
 
 The daily run should reject weak claims unless they can be traced to a primary source or at least two independent credible sources.
+
+For `config/gaming-sources.json`, `trackedGames.games` can be edited directly to add or remove watched games. Set a game's `enabled` field to `false` to keep it in the config without including it in the daily editorial pass. Each enabled game should include aliases, platforms, official sources, and reusable search queries. The automation should add material verified updates to a `Takipteki Oyunlar` report section; if there is no meaningful update and `includeWhenNoMajorNews` is true, it should use one compact sentence rather than filler.
 
 Recommended report paths:
 
@@ -198,13 +201,14 @@ Reports are generated as Markdown with this structure:
 
 - Short TL;DR
 - Most important developments
+- Tracked games, when configured for the gaming digest
 - Developer follow-ups
 - Possible noise or hype
 - A short action list
 
 The digest language is Turkish, while technical terms remain in English when that is more natural.
 
-For multi-part Discord delivery, the gateway uses the report's first Markdown heading as the Discord part header. Give each report a clear H1 such as `# Daily Tech/AI Digest` or `# Daily Gaming Digest`.
+For multi-message Discord delivery, the gateway splits long Markdown reports at safe text boundaries without adding visible part headers. Give each report a clear H1 such as `# Daily Tech/AI Digest` or `# Daily Gaming Digest`.
 
 ## Ignored Local State
 
@@ -230,7 +234,7 @@ State entries include:
 
 ## Notes
 
-- Discord messages are split around 1800 characters to stay under the practical 2000-character limit.
+- Discord messages are split around 1950 characters to stay under the 2000-character limit.
 - Accidental mentions are disabled with `allowed_mentions: { parse: [] }`.
 - Link previews are suppressed with Discord message flags.
 - Discord webhook sends use `wait=true`, so accepted message IDs can be stored in delivery state.

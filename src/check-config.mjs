@@ -33,6 +33,42 @@ function assertNamedUrls(items, label) {
   }
 }
 
+function validateTrackedGames(trackedGames, label) {
+  if (!trackedGames) return;
+
+  assert(trackedGames.enabled === true || trackedGames.enabled === false, `${label}: trackedGames.enabled must be boolean.`);
+  assert(
+    typeof trackedGames.reportSectionTitle === "string" && trackedGames.reportSectionTitle.trim(),
+    `${label}: trackedGames.reportSectionTitle is required.`,
+  );
+  assert(Number.isInteger(trackedGames.lookbackHours), `${label}: trackedGames.lookbackHours must be an integer.`);
+  assert(trackedGames.lookbackHours >= 24, `${label}: trackedGames.lookbackHours should cover at least 24 hours.`);
+  assert(
+    trackedGames.includeWhenNoMajorNews === true || trackedGames.includeWhenNoMajorNews === false,
+    `${label}: trackedGames.includeWhenNoMajorNews must be boolean.`,
+  );
+  assert(Array.isArray(trackedGames.guidance) && trackedGames.guidance.length >= 3, `${label}: trackedGames.guidance should include editorial rules.`);
+  assert(Array.isArray(trackedGames.games), `${label}: trackedGames.games must be an array.`);
+
+  const names = new Set();
+
+  for (const [index, game] of trackedGames.games.entries()) {
+    const gameLabel = `${label}: trackedGames.games[${index}]`;
+
+    assert(typeof game.name === "string" && game.name.trim(), `${gameLabel}.name is required.`);
+    assert(!names.has(game.name), `${label}: duplicate tracked game name ${game.name}.`);
+    names.add(game.name);
+
+    assert(game.enabled === true || game.enabled === false, `${gameLabel}.enabled must be boolean.`);
+    assert(Array.isArray(game.aliases) && game.aliases.length >= 1, `${gameLabel}.aliases should include at least one alias.`);
+    assert(Array.isArray(game.platforms) && game.platforms.length >= 1, `${gameLabel}.platforms should include at least one platform.`);
+    assert(Array.isArray(game.officialSources) && game.officialSources.length >= 1, `${gameLabel}.officialSources should include at least one primary source.`);
+    assertNamedUrls(game.officialSources, `${gameLabel}.officialSources`);
+    assertUniqueUrls(game.officialSources, `${gameLabel}.officialSources`);
+    assert(Array.isArray(game.searchQueries) && game.searchQueries.length >= 2, `${gameLabel}.searchQueries should include reusable queries.`);
+  }
+}
+
 function validateSources(sources, label) {
   assert(Number.isInteger(sources.rssLookbackHours), `${label}: rssLookbackHours must be an integer.`);
   assert(sources.rssLookbackHours >= 24, `${label}: rssLookbackHours should cover at least 24 hours.`);
@@ -41,6 +77,8 @@ function validateSources(sources, label) {
 
   assert(Array.isArray(sources.audience), `${label}: audience must be an array.`);
   assert(sources.audience.length >= 2, `${label}: audience should describe the intended readers.`);
+
+  validateTrackedGames(sources.trackedGames, label);
 
   assert(sources.editorialWorkflow, `${label}: editorialWorkflow is required.`);
   assert(

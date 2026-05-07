@@ -13,6 +13,109 @@
     "Yeni oyun, patch, etkinlik, vitrin, abonelik ve platform gelişmelerini hızlıca görmek isteyen okurlar",
     "Oyun sektörü, stüdyo, yayıncı, mağaza, donanım ve üretim tarafındaki gelişmeleri önemseyen takipçiler"
   ],
+  "trackedGames": {
+    "enabled": true,
+    "reportSectionTitle": "Takipteki Oyunlar",
+    "lookbackHours": 72,
+    "includeWhenNoMajorNews": true,
+    "guidance": [
+      "For each enabled tracked game, check official sources first, then credible community/news sources.",
+      "Prefer patch notes, maintenance notices, release windows, monetization/store changes, esports calendar changes, events, server issues, roadmap posts, and regional availability or pricing impact.",
+      "Reject routine shop rotations, minor social posts, content creator drama, unsupported leaks, and low-signal community speculation.",
+      "If a tracked game has no material verified update, add one compact Turkish sentence instead of forcing filler."
+    ],
+    "games": [
+      {
+        "name": "League of Legends",
+        "enabled": true,
+        "aliases": ["LoL", "League", "League of Legends PC"],
+        "platforms": ["PC"],
+        "officialSources": [
+          {
+            "name": "League of Legends News",
+            "url": "https://www.leagueoflegends.com/en-us/news/"
+          },
+          {
+            "name": "Riot Games News",
+            "url": "https://www.riotgames.com/en/news"
+          }
+        ],
+        "searchQueries": [
+          "League of Legends patch notes Riot official",
+          "League of Legends dev update Riot official",
+          "League of Legends esports schedule LEC LCK LTA MSI Worlds"
+        ]
+      },
+      {
+        "name": "Black Desert",
+        "enabled": true,
+        "aliases": ["Black Desert Online", "BDO"],
+        "platforms": ["PC", "PlayStation", "Xbox", "Mobile"],
+        "officialSources": [
+          {
+            "name": "Black Desert NA/EU Announcements",
+            "url": "https://www.naeu.playblackdesert.com/en-US/News/Notice"
+          },
+          {
+            "name": "Black Desert TR/MENA Announcements",
+            "url": "https://www.tr.playblackdesert.com/tr-TR/News/Notice"
+          },
+          {
+            "name": "Pearl Abyss News",
+            "url": "https://www.pearlabyss.com/en-US/Board/Detail?_boardNo=128"
+          }
+        ],
+        "searchQueries": [
+          "Black Desert patch notes Pearl Abyss official",
+          "Black Desert maintenance known issues official",
+          "Black Desert console update Pearl Abyss official",
+          "Black Desert Mobile update Pearl Abyss official"
+        ]
+      },
+      {
+        "name": "Aion 2",
+        "enabled": true,
+        "aliases": ["AION 2", "AION2"],
+        "platforms": ["PC", "Mobile"],
+        "officialSources": [
+          {
+            "name": "NCSOFT News",
+            "url": "https://about.ncsoft.com/en/news/list/pressRelease"
+          },
+          {
+            "name": "Aion 2 Official Site",
+            "url": "https://aion2.plaync.com/"
+          }
+        ],
+        "searchQueries": [
+          "Aion 2 official update NCSoft",
+          "AION 2 global release official NCSoft",
+          "AION2 patch maintenance PURPLE official"
+        ]
+      },
+      {
+        "name": "Wuthering Waves",
+        "enabled": true,
+        "aliases": ["WuWa", "Wuthering Waves"],
+        "platforms": ["PC", "PlayStation", "iOS", "Android"],
+        "officialSources": [
+          {
+            "name": "Wuthering Waves News",
+            "url": "https://wutheringwaves.kurogames.com/en/main/news"
+          },
+          {
+            "name": "Kuro Games",
+            "url": "https://www.kurogames.com/en/"
+          }
+        ],
+        "searchQueries": [
+          "Wuthering Waves update patch notes official",
+          "Wuthering Waves maintenance compensation official",
+          "Wuthering Waves version livestream Kuro Games official"
+        ]
+      }
+    ]
+  },
   "editorialWorkflow": {
     "minimumIndependentSourcesForNonPrimaryClaims": 2,
     "preferPrimarySources": true,
