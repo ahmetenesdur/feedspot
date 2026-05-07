@@ -6,7 +6,7 @@ const tempDir = path.join(".gateway", "tmp", "reports");
 const targetPath = process.argv[2];
 
 if (!targetPath) {
-  throw new Error("Usage: npm run write-report -- reports/YYYY-MM-DD-tech-ai-digest.md");
+  throw new Error("Usage: npm run write-report -- reports/YYYY-MM-DD-digest-name.md");
 }
 
 const normalizedTarget = path.normalize(targetPath);

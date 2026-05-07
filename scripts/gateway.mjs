@@ -5,13 +5,14 @@ import { spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 
-const label = "com.ahmetenesdur.tech-ai-aggregate.delivery";
+const label = "com.ahmetenesdur.feedspot.delivery";
+const legacyLabels = ["com.ahmetenesdur.tech-ai-aggregate.delivery"];
 const repoRoot = process.cwd();
 const userId = process.getuid?.() ?? spawn("id", ["-u"]).stdout.trim();
 const domain = `gui/${userId}`;
-const serviceTarget = `${domain}/${label}`;
 const launchAgentsDir = path.join(os.homedir(), "Library", "LaunchAgents");
-const plistPath = path.join(launchAgentsDir, `${label}.plist`);
+const serviceTarget = serviceTargetFor(label);
+const plistPath = plistPathFor(label);
 const reportsDir = path.join(repoRoot, "reports");
 const logsDir = path.join(repoRoot, "logs");
 const gatewayDir = path.join(repoRoot, ".gateway");
@@ -35,6 +36,14 @@ function spawn(commandToRun, args, options = {}) {
   });
 }
 
+function serviceTargetFor(serviceLabel) {
+  return `${domain}/${serviceLabel}`;
+}
+
+function plistPathFor(serviceLabel) {
+  return path.join(launchAgentsDir, `${serviceLabel}.plist`);
+}
+
 function run(commandToRun, args, options = {}) {
   const result = spawn(commandToRun, args, options);
 
@@ -46,11 +55,21 @@ function run(commandToRun, args, options = {}) {
   return result;
 }
 
-function isLoaded() {
-  return run("launchctl", ["print", serviceTarget], {
+function isLoaded(serviceLabel = label) {
+  return run("launchctl", ["print", serviceTargetFor(serviceLabel)], {
     capture: true,
     ignoreErrors: true,
   }).status === 0;
+}
+
+async function removeLegacyLaunchAgents() {
+  for (const legacyLabel of legacyLabels) {
+    if (isLoaded(legacyLabel)) {
+      run("launchctl", ["bootout", serviceTargetFor(legacyLabel)], { ignoreErrors: true });
+    }
+
+    await rm(plistPathFor(legacyLabel), { force: true });
+  }
 }
 
 async function ensureRuntimeDirs() {
@@ -94,6 +113,7 @@ function plist() {
 async function install() {
   await ensureRuntimeDirs();
   await mkdir(launchAgentsDir, { recursive: true });
+  await removeLegacyLaunchAgents();
   await writeFile(plistPath, plist(), "utf8");
 
   if (!sendExisting) {
@@ -119,6 +139,7 @@ async function uninstall() {
   }
 
   await rm(plistPath, { force: true });
+  await removeLegacyLaunchAgents();
   console.log(`Uninstalled delivery gateway: ${label}`);
 }
 
@@ -194,7 +215,7 @@ async function doctor() {
 
   const checks = [
     ["Node version", Number(process.versions.node.split(".")[0]) >= 22, process.versions.node],
-    ["Repository root", repoRoot.endsWith("tech-ai-aggregate"), repoRoot],
+    ["Repository root", repoRoot.endsWith("feedspot"), repoRoot],
     ["Discord webhook env", Boolean(webhook), webhook ? "set" : "missing"],
     ["Discord webhook format", webhookLooksValid, webhook ? "checked without printing value" : "missing"],
     ["Reports directory", await pathExists(reportsDir), reportsDir],

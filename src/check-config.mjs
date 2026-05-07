@@ -1,7 +1,9 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-const sourcesPath = new URL("../config/sources.json", import.meta.url);
-const sources = JSON.parse(await readFile(sourcesPath, "utf8"));
+const configDir = new URL("../config/", import.meta.url);
+const requestedConfigs = process.argv.slice(2);
 
 function assert(condition, message) {
   if (!condition) {
@@ -19,38 +21,94 @@ function assertUniqueUrls(items, label) {
   );
 }
 
-assert(Number.isInteger(sources.rssLookbackHours), "rssLookbackHours must be an integer.");
-assert(sources.rssLookbackHours >= 24, "rssLookbackHours should cover at least 24 hours.");
-assert(Number.isInteger(sources.maxCandidates), "maxCandidates must be an integer.");
-assert(sources.maxCandidates >= 100, "maxCandidates should be high enough for dedupe/ranking.");
+function assertNamedUrls(items, label) {
+  for (const [index, item] of items.entries()) {
+    assert(typeof item.name === "string" && item.name.trim(), `${label}[${index}].name is required.`);
+    assert(typeof item.url === "string" && item.url.startsWith("https://"), `${label}[${index}].url must be HTTPS.`);
+  }
+}
 
-assert(Array.isArray(sources.rss), "rss must be an array.");
-assert(sources.rss.length >= 20, "rss should include a broad source set.");
-assertUniqueUrls(sources.rss, "rss");
+function validateSources(sources, label) {
+  assert(Number.isInteger(sources.rssLookbackHours), `${label}: rssLookbackHours must be an integer.`);
+  assert(sources.rssLookbackHours >= 24, `${label}: rssLookbackHours should cover at least 24 hours.`);
+  assert(Number.isInteger(sources.maxCandidates), `${label}: maxCandidates must be an integer.`);
+  assert(sources.maxCandidates >= 100, `${label}: maxCandidates should be high enough for dedupe/ranking.`);
 
-assert(Array.isArray(sources.officialSites), "officialSites must be an array.");
-assert(sources.officialSites.length >= 10, "officialSites should include primary verification targets.");
-assertUniqueUrls(sources.officialSites, "officialSites");
+  assert(Array.isArray(sources.audience), `${label}: audience must be an array.`);
+  assert(sources.audience.length >= 2, `${label}: audience should describe the intended readers.`);
 
-assert(sources.webSearch?.enabled === true, "webSearch must be enabled.");
-assert(
-  Array.isArray(sources.webSearch.queries) && sources.webSearch.queries.length >= 10,
-  "webSearch.queries should include broad topical searches.",
-);
-assert(
-  Array.isArray(sources.webSearch.officialDomainQueries) &&
-    sources.webSearch.officialDomainQueries.length >= 10,
-  "webSearch.officialDomainQueries should include primary-source searches.",
-);
+  assert(sources.editorialWorkflow, `${label}: editorialWorkflow is required.`);
+  assert(
+    Number.isInteger(sources.editorialWorkflow.minimumIndependentSourcesForNonPrimaryClaims),
+    `${label}: editorialWorkflow.minimumIndependentSourcesForNonPrimaryClaims must be an integer.`,
+  );
+  assert(
+    Array.isArray(sources.editorialWorkflow.dedupeBy) && sources.editorialWorkflow.dedupeBy.length >= 3,
+    `${label}: editorialWorkflow.dedupeBy should include reusable dedupe keys.`,
+  );
+  assert(
+    Array.isArray(sources.editorialWorkflow.rankBy) && sources.editorialWorkflow.rankBy.length >= 5,
+    `${label}: editorialWorkflow.rankBy should include ranking rules.`,
+  );
+  assert(
+    Array.isArray(sources.editorialWorkflow.rejectIf) && sources.editorialWorkflow.rejectIf.length >= 5,
+    `${label}: editorialWorkflow.rejectIf should include rejection rules.`,
+  );
 
-assert(sources.githubSearch?.enabled === true, "githubSearch must be enabled.");
-assert(
-  Array.isArray(sources.githubSearch.languages) && sources.githubSearch.languages.includes("TypeScript"),
-  "githubSearch.languages must include TypeScript.",
-);
-assert(
-  Array.isArray(sources.githubSearch.queries) && sources.githubSearch.queries.length >= 6,
-  "githubSearch.queries should include reusable discovery queries.",
-);
+  assert(Array.isArray(sources.rss), `${label}: rss must be an array.`);
+  assert(sources.rss.length >= 10, `${label}: rss should include a broad source set.`);
+  assertNamedUrls(sources.rss, `${label}: rss`);
+  assertUniqueUrls(sources.rss, `${label}: rss`);
 
-console.log("Source configuration looks usable.");
+  assert(Array.isArray(sources.officialSites), `${label}: officialSites must be an array.`);
+  assert(sources.officialSites.length >= 5, `${label}: officialSites should include primary verification targets.`);
+  assertNamedUrls(sources.officialSites, `${label}: officialSites`);
+  assertUniqueUrls(sources.officialSites, `${label}: officialSites`);
+
+  assert(sources.webSearch?.enabled === true, `${label}: webSearch must be enabled.`);
+  assert(
+    Array.isArray(sources.webSearch.queries) && sources.webSearch.queries.length >= 6,
+    `${label}: webSearch.queries should include broad topical searches.`,
+  );
+  assert(
+    Array.isArray(sources.webSearch.officialDomainQueries) &&
+      sources.webSearch.officialDomainQueries.length >= 5,
+    `${label}: webSearch.officialDomainQueries should include primary-source searches.`,
+  );
+
+  if (sources.githubSearch) {
+    assert(sources.githubSearch.enabled === true, `${label}: githubSearch.enabled must be true when present.`);
+    assert(
+      Array.isArray(sources.githubSearch.queries) && sources.githubSearch.queries.length >= 6,
+      `${label}: githubSearch.queries should include reusable discovery queries.`,
+    );
+  }
+}
+
+async function configTargets() {
+  if (requestedConfigs.length > 0) {
+    return requestedConfigs.map((configPath) => ({
+      label: configPath,
+      url: pathToFileURL(path.resolve(configPath)),
+    }));
+  }
+
+  const entries = await readdir(configDir, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith("sources.json"))
+    .map((entry) => ({
+      label: `config/${entry.name}`,
+      url: new URL(entry.name, configDir),
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+const targets = await configTargets();
+
+assert(targets.length > 0, "No source configuration files found.");
+
+for (const target of targets) {
+  const sources = JSON.parse(await readFile(target.url, "utf8"));
+  validateSources(sources, target.label);
+  console.log(`${target.label}: source configuration looks usable.`);
+}

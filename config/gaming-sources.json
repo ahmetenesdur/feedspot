@@ -1,0 +1,236 @@
+{
+  "digest": {
+    "slug": "gaming",
+    "title": "Turkish Gaming Digest",
+    "reportPathTemplate": "reports/YYYY-MM-DD-gaming-digest.md",
+    "language": "tr"
+  },
+  "rssLookbackHours": 48,
+  "maxCandidates": 160,
+  "timezone": "Europe/Istanbul",
+  "audience": [
+    "PC, PlayStation, Xbox, Nintendo ve mobil oyun haberlerini takip eden oyuncular",
+    "Yeni oyun, patch, etkinlik, vitrin, abonelik ve platform gelişmelerini hızlıca görmek isteyen okurlar",
+    "Oyun sektörü, stüdyo, yayıncı, mağaza, donanım ve üretim tarafındaki gelişmeleri önemseyen takipçiler"
+  ],
+  "editorialWorkflow": {
+    "minimumIndependentSourcesForNonPrimaryClaims": 2,
+    "preferPrimarySources": true,
+    "mustOpenAndVerifyCandidateLinks": true,
+    "dedupeBy": ["canonicalUrl", "title", "underlyingAnnouncement", "game", "studio", "platform"],
+    "rankBy": [
+      "major platform or publisher announcement",
+      "release date, delay, cancellation, acquisition, layoff, or studio closure impact",
+      "high player impact: patch, expansion, server status, monetization, account, or store policy change",
+      "credible new game reveal, showcase, trailer, demo, or review embargo signal",
+      "industry/business significance for studios, publishers, storefronts, subscriptions, or regulation",
+      "Turkish audience relevance: PC, console, Game Pass, PlayStation Plus, Steam, Epic Games Store, Nintendo, esports, or local pricing"
+    ],
+    "rejectIf": [
+      "source link is missing or circular",
+      "claim is only social-media speculation or unsourced rumor",
+      "story is only a guide, listicle, deal roundup, cosplay/gallery post, or evergreen SEO article",
+      "review score is reported without explaining the underlying news value",
+      "date cannot be verified",
+      "same story was already covered in recent automation memory without a material update"
+    ]
+  },
+  "rss": [
+    {
+      "name": "IGN Articles",
+      "type": "rss",
+      "url": "https://www.ign.com/rss/v2/articles/feed"
+    },
+    {
+      "name": "GameSpot News",
+      "type": "rss",
+      "url": "https://www.gamespot.com/feeds/news/"
+    },
+    {
+      "name": "Polygon",
+      "type": "rss",
+      "url": "https://www.polygon.com/rss/index.xml"
+    },
+    {
+      "name": "Eurogamer News",
+      "type": "rss",
+      "url": "https://www.eurogamer.net/feed/news"
+    },
+    {
+      "name": "PC Gamer",
+      "type": "rss",
+      "url": "https://www.pcgamer.com/rss/"
+    },
+    {
+      "name": "Rock Paper Shotgun News",
+      "type": "rss",
+      "url": "https://www.rockpapershotgun.com/feed/news"
+    },
+    {
+      "name": "VG247",
+      "type": "rss",
+      "url": "https://www.vg247.com/feed"
+    },
+    {
+      "name": "Video Games Chronicle",
+      "type": "rss",
+      "url": "https://www.videogameschronicle.com/feed/"
+    },
+    {
+      "name": "Gematsu",
+      "type": "rss",
+      "url": "https://www.gematsu.com/feed"
+    },
+    {
+      "name": "Kotaku",
+      "type": "rss",
+      "url": "https://kotaku.com/rss"
+    },
+    {
+      "name": "GamesRadar",
+      "type": "rss",
+      "url": "https://www.gamesradar.com/rss/"
+    },
+    {
+      "name": "Game Developer",
+      "type": "rss",
+      "url": "https://www.gamedeveloper.com/rss.xml"
+    },
+    {
+      "name": "GamesIndustry.biz",
+      "type": "rss",
+      "url": "https://www.gamesindustry.biz/feed"
+    },
+    {
+      "name": "The Verge Games",
+      "type": "rss",
+      "url": "https://www.theverge.com/rss/games/index.xml"
+    },
+    {
+      "name": "PlayStation Blog",
+      "type": "rss",
+      "url": "https://blog.playstation.com/feed/"
+    },
+    {
+      "name": "Xbox Wire",
+      "type": "rss",
+      "url": "https://news.xbox.com/en-us/feed/"
+    },
+    {
+      "name": "Nintendo Life News",
+      "type": "rss",
+      "url": "https://www.nintendolife.com/feeds/news"
+    },
+    {
+      "name": "Push Square News",
+      "type": "rss",
+      "url": "https://www.pushsquare.com/feeds/news"
+    },
+    {
+      "name": "Pure Xbox News",
+      "type": "rss",
+      "url": "https://www.purexbox.com/feeds/news"
+    },
+    {
+      "name": "Insider Gaming",
+      "type": "rss",
+      "url": "https://insider-gaming.com/feed/"
+    }
+  ],
+  "officialSites": [
+    {
+      "name": "PlayStation Blog",
+      "url": "https://blog.playstation.com/"
+    },
+    {
+      "name": "Xbox Wire",
+      "url": "https://news.xbox.com/en-us/"
+    },
+    {
+      "name": "Nintendo News",
+      "url": "https://www.nintendo.com/us/whatsnew/"
+    },
+    {
+      "name": "Steam News",
+      "url": "https://store.steampowered.com/news/"
+    },
+    {
+      "name": "Epic Games News",
+      "url": "https://store.epicgames.com/en-US/news"
+    },
+    {
+      "name": "Ubisoft News",
+      "url": "https://news.ubisoft.com/"
+    },
+    {
+      "name": "Electronic Arts News",
+      "url": "https://www.ea.com/news"
+    },
+    {
+      "name": "Activision Blog",
+      "url": "https://www.callofduty.com/blog"
+    },
+    {
+      "name": "Blizzard News",
+      "url": "https://news.blizzard.com/"
+    },
+    {
+      "name": "Bethesda News",
+      "url": "https://bethesda.net/en/news"
+    },
+    {
+      "name": "Capcom News",
+      "url": "https://www.capcom-games.com/news/"
+    },
+    {
+      "name": "Square Enix News",
+      "url": "https://www.square-enix-games.com/en_US/news"
+    },
+    {
+      "name": "CD PROJEKT RED News",
+      "url": "https://www.cdprojektred.com/en/news"
+    },
+    {
+      "name": "Riot Games News",
+      "url": "https://www.riotgames.com/en/news"
+    },
+    {
+      "name": "Valve Steam Blog",
+      "url": "https://store.steampowered.com/news/group/4145017"
+    }
+  ],
+  "webSearch": {
+    "enabled": true,
+    "lookbackHours": 48,
+    "maxQueries": 30,
+    "recencyDays": 3,
+    "queries": [
+      "video game news release date delay trailer update",
+      "new game announcement showcase trailer PC PlayStation Xbox Nintendo",
+      "game patch update expansion DLC season launch server status",
+      "Steam Epic Games Store Game Pass PlayStation Plus Nintendo Switch Online games news",
+      "gaming industry acquisition layoffs studio closure publisher earnings",
+      "esports game update tournament publisher announcement",
+      "game monetization battle pass pricing loot boxes regulation",
+      "PC gaming hardware handheld console GPU driver game performance",
+      "indie game announcement demo Steam Next Fest publisher",
+      "mobile games update iOS Android publisher announcement"
+    ],
+    "officialDomainQueries": [
+      "site:blog.playstation.com PS5 PS Plus State of Play release date",
+      "site:news.xbox.com/en-us Xbox Game Pass showcase release date update",
+      "site:nintendo.com/us/whatsnew Nintendo Direct Switch release date update",
+      "site:store.steampowered.com/news Steam game update sale festival",
+      "site:store.epicgames.com/en-US/news Epic Games Store free games update",
+      "site:news.ubisoft.com Ubisoft game release update delay",
+      "site:ea.com/news Electronic Arts game update release date",
+      "site:callofduty.com/blog Call of Duty update season patch",
+      "site:news.blizzard.com Blizzard update season patch release",
+      "site:bethesda.net/en/news Bethesda game update release",
+      "site:capcom-games.com/news Capcom game release update",
+      "site:square-enix-games.com/en_US/news Square Enix game release update",
+      "site:riotgames.com/en/news Riot Games update esports patch",
+      "site:cdprojektred.com/en/news CD PROJEKT RED update release"
+    ]
+  }
+}

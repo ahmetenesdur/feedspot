@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 const MAX_DISCORD_CONTENT_LENGTH = 1800;
 const MAX_RETRIES = 5;
@@ -61,6 +62,23 @@ function splitDiscordMessage(text, maxLength = MAX_DISCORD_CONTENT_LENGTH) {
 
   if (current) chunks.push(current);
   return chunks;
+}
+
+function titleFromReport(report, filePath) {
+  const heading = report
+    .split("\n")
+    .map((line) => line.match(/^#\s+(.+?)\s*$/)?.[1])
+    .find(Boolean);
+
+  if (heading) return heading.replace(/\s+/g, " ").trim();
+
+  return path
+    .basename(filePath, path.extname(filePath))
+    .replace(/^\d{4}-\d{2}-\d{2}-/, "")
+    .split(/[-_]+/)
+    .filter(Boolean)
+    .map((part) => part[0]?.toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function webhookUrlWithWait() {
@@ -141,6 +159,7 @@ async function main() {
   }
 
   const chunks = splitDiscordMessage(report);
+  const reportTitle = titleFromReport(report, reportPath);
 
   if (dryRun) {
     const embedMode = suppressEmbeds ? "link previews suppressed" : "link previews enabled";
@@ -166,7 +185,7 @@ async function main() {
   for (let index = 0; index < chunks.length; index++) {
     const header =
       chunks.length > 1
-        ? `**Daily Tech/AI Digest - Part ${index + 1}/${chunks.length}**\n\n`
+        ? `**${reportTitle} - Part ${index + 1}/${chunks.length}**\n\n`
         : "";
 
     const message = await postDiscordChunk(`${header}${chunks[index]}`);

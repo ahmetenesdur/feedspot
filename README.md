@@ -1,6 +1,6 @@
-# Tech/AI Digest
+# Feedspot
 
-A small helper repository for a Codex Automation powered Turkish Tech/AI/developer news digest.
+Feedspot is a small helper repository for Codex Automation powered Turkish news digests.
 
 Codex Automation owns the AI/editorial work: research, source review, deduplication, ranking, synthesis, and Turkish writing. This repository owns the operational pieces around that workflow: source configuration, report storage conventions, and Discord delivery.
 
@@ -10,9 +10,9 @@ The system is intentionally split into two responsibilities:
 
 1. **Codex Automation creates the report.**
    - Runs daily.
-   - Reads `config/sources.json` as a research brief.
-   - Uses available tools and MCPs to collect and verify recent Tech/AI/developer news.
-   - Writes a Turkish Markdown report to `reports/YYYY-MM-DD-tech-ai-digest.md`.
+   - Reads one of the source brief files under `config/`.
+   - Uses available tools and MCPs to collect and verify recent news for that digest.
+   - Writes a Turkish Markdown report to `reports/YYYY-MM-DD-<digest-name>.md`.
 
 2. **The local delivery gateway sends the report.**
    - Runs as a macOS LaunchAgent.
@@ -112,7 +112,7 @@ npm run gateway:doctor
 The gateway LaunchAgent is installed at:
 
 ```bash
-~/Library/LaunchAgents/com.ahmetenesdur.tech-ai-aggregate.delivery.plist
+~/Library/LaunchAgents/com.ahmetenesdur.feedspot.delivery.plist
 ```
 
 The LaunchAgent uses:
@@ -145,20 +145,32 @@ Preview how many Discord messages would be sent without touching the webhook:
 npm run dry-run-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
 ```
 
-## Source Configuration
+## Digest Configurations
 
-Sources and editorial constraints live in `config/sources.json`.
+Sources and editorial constraints live in source brief files under `config/`:
 
-The automation should treat the file as a research brief, not as a complete crawler implementation:
+- `config/sources.json`: Tech/AI/developer digest.
+- `config/gaming-sources.json`: Gaming digest.
+
+The automation should treat each file as a research brief, not as a complete crawler implementation:
 
 - `rss` lists feeds to scan first.
 - `officialSites` lists primary verification targets.
 - `webSearch.queries` gives broad topical searches for fresh stories.
 - `webSearch.officialDomainQueries` gives primary-source searches for high-signal vendors and standards/security bodies.
-- `githubSearch` defines repository discovery preferences for new or newly active developer tooling.
+- `githubSearch`, when present, defines repository discovery preferences for new or newly active developer tooling.
 - `editorialWorkflow` defines dedupe, ranking, and rejection rules.
 
 The daily run should reject weak claims unless they can be traced to a primary source or at least two independent credible sources.
+
+Recommended report paths:
+
+```bash
+reports/YYYY-MM-DD-tech-ai-digest.md
+reports/YYYY-MM-DD-gaming-digest.md
+```
+
+The existing delivery gateway sends both reports because it watches all Markdown files in `reports/`.
 
 ## Output
 
@@ -171,6 +183,8 @@ Reports are generated as Markdown with this structure:
 - A short action list
 
 The digest language is Turkish, while technical terms remain in English when that is more natural.
+
+For multi-part Discord delivery, the gateway uses the report's first Markdown heading as the Discord part header. Give each report a clear H1 such as `# Daily Tech/AI Digest` or `# Daily Gaming Digest`.
 
 ## Ignored Local State
 

@@ -1,7 +1,7 @@
 {
-  "name": "tech-ai-aggregate",
+  "name": "feedspot",
   "version": "1.0.0",
-  "description": "Codex Automation helper for a daily Turkish Tech/AI digest.",
+  "description": "Codex Automation helper for Feedspot's daily Turkish news digests.",
   "private": true,
   "type": "module",
   "engines": {
