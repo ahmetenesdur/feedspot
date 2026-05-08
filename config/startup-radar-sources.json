@@ -81,11 +81,6 @@
       "url": "https://www.eu-startups.com/feed/"
     },
     {
-      "name": "The Information Startups",
-      "type": "rss",
-      "url": "https://www.theinformation.com/feed"
-    },
-    {
       "name": "VentureBeat",
       "type": "rss",
       "url": "https://venturebeat.com/feed/"
@@ -101,14 +96,9 @@
       "url": "https://github.blog/feed/"
     },
     {
-      "name": "Indie Hackers",
+      "name": "HackerNoon Startups",
       "type": "rss",
-      "url": "https://www.indiehackers.com/feed.xml"
-    },
-    {
-      "name": "BetaList",
-      "type": "rss",
-      "url": "https://betalist.com/feed"
+      "url": "https://hackernoon.com/tagged/startups/feed"
     }
   ],
   "officialSites": [

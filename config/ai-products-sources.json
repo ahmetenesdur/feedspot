@@ -66,11 +66,6 @@
       "url": "https://developers.googleblog.com/feeds/posts/default"
     },
     {
-      "name": "DeepMind Blog",
-      "type": "rss",
-      "url": "https://deepmind.google/discover/blog/rss.xml"
-    },
-    {
       "name": "Microsoft AI Blog",
       "type": "rss",
       "url": "https://blogs.microsoft.com/ai/feed/"

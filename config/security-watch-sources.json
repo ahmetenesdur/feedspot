@@ -82,29 +82,14 @@
       "url": "https://www.securityweek.com/feed/"
     },
     {
-      "name": "Krebs on Security",
-      "type": "rss",
-      "url": "https://krebsonsecurity.com/feed/"
-    },
-    {
       "name": "Google Security Blog",
       "type": "rss",
       "url": "https://security.googleblog.com/feeds/posts/default"
     },
     {
-      "name": "Microsoft Security Response Center",
-      "type": "rss",
-      "url": "https://msrc.microsoft.com/blog/feed"
-    },
-    {
       "name": "GitHub Security Blog",
       "type": "rss",
       "url": "https://github.blog/security/feed/"
-    },
-    {
-      "name": "Socket Blog",
-      "type": "rss",
-      "url": "https://socket.dev/blog/rss.xml"
     },
     {
       "name": "Trail of Bits Blog",
