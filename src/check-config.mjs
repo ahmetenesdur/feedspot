@@ -43,36 +43,39 @@ function assertReportPathTemplate(value, label) {
 function validateCadence(cadence, label) {
   if (!cadence) return;
 
-  assert(cadence.primary, `${label}: cadence.primary is required when cadence is present.`);
-  assert(cadence.watch, `${label}: cadence.watch is required when cadence is present.`);
+  assert(cadence.primary || cadence.watch, `${label}: cadence must include primary or watch.`);
 
-  assert(typeof cadence.primary.name === "string" && cadence.primary.name.trim(), `${label}: cadence.primary.name is required.`);
-  assert(cadence.primary.schedule === "weekly", `${label}: cadence.primary.schedule must be weekly.`);
-  assert(typeof cadence.primary.recommendedDay === "string" && cadence.primary.recommendedDay.trim(), `${label}: cadence.primary.recommendedDay is required.`);
-  assert(Number.isInteger(cadence.primary.lookbackHours), `${label}: cadence.primary.lookbackHours must be an integer.`);
-  assert(cadence.primary.lookbackHours >= 120, `${label}: cadence.primary.lookbackHours should cover most of a week.`);
-  assertReportPathTemplate(cadence.primary.reportPathTemplate, `${label}: cadence.primary.reportPathTemplate`);
-  assert(
-    cadence.primary.postWhenNoMajorNews === true || cadence.primary.postWhenNoMajorNews === false,
-    `${label}: cadence.primary.postWhenNoMajorNews must be boolean.`,
-  );
-  assert(Array.isArray(cadence.primary.guidance) && cadence.primary.guidance.length >= 2, `${label}: cadence.primary.guidance should include editorial rules.`);
+  if (cadence.primary) {
+    assert(typeof cadence.primary.name === "string" && cadence.primary.name.trim(), `${label}: cadence.primary.name is required.`);
+    assert(cadence.primary.schedule === "weekly", `${label}: cadence.primary.schedule must be weekly.`);
+    assert(typeof cadence.primary.recommendedDay === "string" && cadence.primary.recommendedDay.trim(), `${label}: cadence.primary.recommendedDay is required.`);
+    assert(Number.isInteger(cadence.primary.lookbackHours), `${label}: cadence.primary.lookbackHours must be an integer.`);
+    assert(cadence.primary.lookbackHours >= 120, `${label}: cadence.primary.lookbackHours should cover most of a week.`);
+    assertReportPathTemplate(cadence.primary.reportPathTemplate, `${label}: cadence.primary.reportPathTemplate`);
+    assert(
+      cadence.primary.postWhenNoMajorNews === true || cadence.primary.postWhenNoMajorNews === false,
+      `${label}: cadence.primary.postWhenNoMajorNews must be boolean.`,
+    );
+    assert(Array.isArray(cadence.primary.guidance) && cadence.primary.guidance.length >= 2, `${label}: cadence.primary.guidance should include editorial rules.`);
+  }
 
-  assert(typeof cadence.watch.name === "string" && cadence.watch.name.trim(), `${label}: cadence.watch.name is required.`);
-  assert(cadence.watch.schedule === "daily", `${label}: cadence.watch.schedule must be daily.`);
-  assert(Number.isInteger(cadence.watch.lookbackHours), `${label}: cadence.watch.lookbackHours must be an integer.`);
-  assert(cadence.watch.lookbackHours >= 24, `${label}: cadence.watch.lookbackHours should cover at least 24 hours.`);
-  assertReportPathTemplate(cadence.watch.reportPathTemplate, `${label}: cadence.watch.reportPathTemplate`);
-  assert(
-    cadence.watch.postOnlyIfMaterial === true || cadence.watch.postOnlyIfMaterial === false,
-    `${label}: cadence.watch.postOnlyIfMaterial must be boolean.`,
-  );
-  assert(
-    cadence.watch.skipReportWhenNoMaterialUpdates === true || cadence.watch.skipReportWhenNoMaterialUpdates === false,
-    `${label}: cadence.watch.skipReportWhenNoMaterialUpdates must be boolean.`,
-  );
-  assert(Array.isArray(cadence.watch.triggerIf) && cadence.watch.triggerIf.length >= 3, `${label}: cadence.watch.triggerIf should include trigger rules.`);
-  assert(Array.isArray(cadence.watch.rejectIfOnly) && cadence.watch.rejectIfOnly.length >= 2, `${label}: cadence.watch.rejectIfOnly should include rejection rules.`);
+  if (cadence.watch) {
+    assert(typeof cadence.watch.name === "string" && cadence.watch.name.trim(), `${label}: cadence.watch.name is required.`);
+    assert(cadence.watch.schedule === "daily", `${label}: cadence.watch.schedule must be daily.`);
+    assert(Number.isInteger(cadence.watch.lookbackHours), `${label}: cadence.watch.lookbackHours must be an integer.`);
+    assert(cadence.watch.lookbackHours >= 24, `${label}: cadence.watch.lookbackHours should cover at least 24 hours.`);
+    assertReportPathTemplate(cadence.watch.reportPathTemplate, `${label}: cadence.watch.reportPathTemplate`);
+    assert(
+      cadence.watch.postOnlyIfMaterial === true || cadence.watch.postOnlyIfMaterial === false,
+      `${label}: cadence.watch.postOnlyIfMaterial must be boolean.`,
+    );
+    assert(
+      cadence.watch.skipReportWhenNoMaterialUpdates === true || cadence.watch.skipReportWhenNoMaterialUpdates === false,
+      `${label}: cadence.watch.skipReportWhenNoMaterialUpdates must be boolean.`,
+    );
+    assert(Array.isArray(cadence.watch.triggerIf) && cadence.watch.triggerIf.length >= 3, `${label}: cadence.watch.triggerIf should include trigger rules.`);
+    assert(Array.isArray(cadence.watch.rejectIfOnly) && cadence.watch.rejectIfOnly.length >= 2, `${label}: cadence.watch.rejectIfOnly should include rejection rules.`);
+  }
 }
 
 function validateTrackedGames(trackedGames, label) {

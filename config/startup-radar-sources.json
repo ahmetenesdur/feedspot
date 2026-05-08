@@ -1,0 +1,178 @@
+{
+  "digest": {
+    "slug": "startup-radar",
+    "title": "Weekly Startup / Product Radar",
+    "reportPathTemplate": "reports/YYYY-MM-DD-startup-radar.md",
+    "language": "tr"
+  },
+  "cadence": {
+    "primary": {
+      "name": "Weekly Startup / Product Radar",
+      "schedule": "weekly",
+      "recommendedDay": "Friday",
+      "lookbackHours": 168,
+      "reportPathTemplate": "reports/YYYY-MM-DD-startup-radar.md",
+      "postWhenNoMajorNews": true,
+      "guidance": [
+        "Focus on useful new products, SaaS tools, AI tools, developer products, indie launches, and strong early traction signals.",
+        "Prefer products the reader can try, evaluate, or learn from now.",
+        "Avoid pure funding news, launch spam, clone products, thin directories, and marketing-only announcements without a concrete product."
+      ]
+    }
+  },
+  "rssLookbackHours": 168,
+  "maxCandidates": 220,
+  "timezone": "Europe/Istanbul",
+  "audience": [
+    "Yeni SaaS, AI tool, developer tool ve indie ürünleri denemeyi seven power user'lar",
+    "Startup, ürün stratejisi ve growth sinyallerini takip eden kurucular",
+    "Product Hunt, Hacker News, GitHub ve startup basınından yüksek-sinyal ürün keşfi isteyenler"
+  ],
+  "editorialWorkflow": {
+    "minimumIndependentSourcesForNonPrimaryClaims": 2,
+    "preferPrimarySources": true,
+    "mustOpenAndVerifyCandidateLinks": true,
+    "dedupeBy": ["canonicalUrl", "title", "product", "company", "founder", "domain"],
+    "rankBy": [
+      "useful product that can be tried now",
+      "developer, AI, productivity, workflow, data, design, or infrastructure relevance",
+      "clear differentiation or unusually good execution",
+      "credible traction signal from Product Hunt, Hacker News, GitHub, customers, or reputable press",
+      "learning value for builders and product-minded readers"
+    ],
+    "rejectIf": [
+      "source link is missing or circular",
+      "claim is only social-media speculation",
+      "story is pure funding or valuation with no product change",
+      "product is a thin directory, wrapper, clone, waitlist-only page, or SEO listicle",
+      "date cannot be verified",
+      "same product was already covered in recent automation memory without a material update"
+    ]
+  },
+  "rss": [
+    {
+      "name": "Product Hunt",
+      "type": "rss",
+      "url": "https://www.producthunt.com/feed"
+    },
+    {
+      "name": "Hacker News",
+      "type": "rss",
+      "url": "https://news.ycombinator.com/rss"
+    },
+    {
+      "name": "TechCrunch Startups",
+      "type": "rss",
+      "url": "https://techcrunch.com/category/startups/feed/"
+    },
+    {
+      "name": "Crunchbase News",
+      "type": "rss",
+      "url": "https://news.crunchbase.com/feed/"
+    },
+    {
+      "name": "Sifted",
+      "type": "rss",
+      "url": "https://sifted.eu/feed"
+    },
+    {
+      "name": "EU-Startups",
+      "type": "rss",
+      "url": "https://www.eu-startups.com/feed/"
+    },
+    {
+      "name": "The Information Startups",
+      "type": "rss",
+      "url": "https://www.theinformation.com/feed"
+    },
+    {
+      "name": "VentureBeat",
+      "type": "rss",
+      "url": "https://venturebeat.com/feed/"
+    },
+    {
+      "name": "Y Combinator Blog",
+      "type": "rss",
+      "url": "https://www.ycombinator.com/blog/rss"
+    },
+    {
+      "name": "GitHub Blog",
+      "type": "rss",
+      "url": "https://github.blog/feed/"
+    },
+    {
+      "name": "Indie Hackers",
+      "type": "rss",
+      "url": "https://www.indiehackers.com/feed.xml"
+    },
+    {
+      "name": "BetaList",
+      "type": "rss",
+      "url": "https://betalist.com/feed"
+    }
+  ],
+  "officialSites": [
+    {
+      "name": "Product Hunt",
+      "url": "https://www.producthunt.com/"
+    },
+    {
+      "name": "Hacker News",
+      "url": "https://news.ycombinator.com/"
+    },
+    {
+      "name": "Y Combinator Launch",
+      "url": "https://www.ycombinator.com/launches"
+    },
+    {
+      "name": "Y Combinator Companies",
+      "url": "https://www.ycombinator.com/companies"
+    },
+    {
+      "name": "TechCrunch Startups",
+      "url": "https://techcrunch.com/category/startups/"
+    },
+    {
+      "name": "Crunchbase News",
+      "url": "https://news.crunchbase.com/"
+    },
+    {
+      "name": "Indie Hackers",
+      "url": "https://www.indiehackers.com/"
+    },
+    {
+      "name": "BetaList",
+      "url": "https://betalist.com/"
+    },
+    {
+      "name": "GitHub Trending",
+      "url": "https://github.com/trending"
+    }
+  ],
+  "webSearch": {
+    "enabled": true,
+    "lookbackHours": 168,
+    "maxQueries": 32,
+    "recencyDays": 8,
+    "queries": [
+      "new SaaS product launch AI tool Product Hunt",
+      "startup product launch developer tool AI tool",
+      "indie hacker product launch traction",
+      "Hacker News Show HN AI developer tool product",
+      "Product Hunt top products this week AI SaaS developer",
+      "new open source startup product GitHub trending",
+      "YC launch new product AI developer productivity",
+      "startup product update workflow automation data design"
+    ],
+    "officialDomainQueries": [
+      "site:producthunt.com/posts AI tool SaaS developer",
+      "site:news.ycombinator.com \"Show HN\" AI tool startup",
+      "site:ycombinator.com/launches AI developer productivity",
+      "site:techcrunch.com/category/startups product launch AI SaaS",
+      "site:crunchbase.com startup product launch AI",
+      "site:indiehackers.com product launch SaaS AI",
+      "site:github.com/trending AI developer tool",
+      "site:betalist.com startup SaaS AI"
+    ]
+  }
+}

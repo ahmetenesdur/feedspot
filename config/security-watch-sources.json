@@ -1,0 +1,200 @@
+{
+  "digest": {
+    "slug": "security-watch",
+    "title": "Security Watch",
+    "reportPathTemplate": "reports/YYYY-MM-DD-security-watch.md",
+    "language": "tr"
+  },
+  "cadence": {
+    "watch": {
+      "name": "Security Watch",
+      "schedule": "daily",
+      "lookbackHours": 48,
+      "reportPathTemplate": "reports/YYYY-MM-DD-security-watch.md",
+      "postOnlyIfMaterial": true,
+      "skipReportWhenNoMaterialUpdates": true,
+      "triggerIf": [
+        "actively exploited vulnerability, CISA KEV addition, or emergency vendor advisory",
+        "critical or high severity issue in widely used developer, browser, OS, cloud, identity, npm, PyPI, GitHub, CI/CD, container, Kubernetes, database, wallet, or crypto infrastructure",
+        "major breach, supply-chain compromise, malware campaign, leaked credentials/tokens, ransomware incident, or wallet-drainer/exploit with practical defensive action",
+        "patch or mitigation deadline that readers should act on within days"
+      ],
+      "rejectIfOnly": [
+        "generic security awareness post, old CVE with no new exploit or patch context, vendor marketing, threat-intel teaser without indicators or action, or niche vuln without broad reader impact",
+        "story cannot be traced to a primary advisory or two independent credible sources",
+        "no practical action or monitoring value for developers, power users, or small teams"
+      ]
+    }
+  },
+  "rssLookbackHours": 48,
+  "maxCandidates": 220,
+  "timezone": "Europe/Istanbul",
+  "audience": [
+    "Geliştiriciler, küçük ekipler ve teknik power user'lar",
+    "npm/PyPI/GitHub/CI/CD/cloud/browser/OS güvenlik etkilerini hızlı görmek isteyenler",
+    "Crypto/Web3 altyapı, wallet, exchange ve token güvenliği risklerini izleyenler"
+  ],
+  "editorialWorkflow": {
+    "minimumIndependentSourcesForNonPrimaryClaims": 2,
+    "preferPrimarySources": true,
+    "mustOpenAndVerifyCandidateLinks": true,
+    "dedupeBy": ["canonicalUrl", "title", "cve", "package", "vendor", "campaign", "incident"],
+    "rankBy": [
+      "active exploitation or emergency patch",
+      "breadth of affected users and systems",
+      "developer or supply-chain impact",
+      "cloud, identity, browser, OS, crypto, wallet, or package ecosystem impact",
+      "clarity of mitigation or action"
+    ],
+    "rejectIf": [
+      "source link is missing or circular",
+      "claim is only social-media speculation",
+      "no primary advisory or second credible source for non-primary claims",
+      "no practical action, mitigation, or monitoring value",
+      "date cannot be verified",
+      "same story was already covered in recent automation memory without a material update"
+    ]
+  },
+  "rss": [
+    {
+      "name": "CISA News",
+      "type": "rss",
+      "url": "https://www.cisa.gov/news.xml"
+    },
+    {
+      "name": "CISA Cybersecurity Advisories",
+      "type": "rss",
+      "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    },
+    {
+      "name": "BleepingComputer",
+      "type": "rss",
+      "url": "https://www.bleepingcomputer.com/feed/"
+    },
+    {
+      "name": "The Hacker News",
+      "type": "rss",
+      "url": "https://feeds.feedburner.com/TheHackersNews"
+    },
+    {
+      "name": "SecurityWeek",
+      "type": "rss",
+      "url": "https://www.securityweek.com/feed/"
+    },
+    {
+      "name": "Krebs on Security",
+      "type": "rss",
+      "url": "https://krebsonsecurity.com/feed/"
+    },
+    {
+      "name": "Google Security Blog",
+      "type": "rss",
+      "url": "https://security.googleblog.com/feeds/posts/default"
+    },
+    {
+      "name": "Microsoft Security Response Center",
+      "type": "rss",
+      "url": "https://msrc.microsoft.com/blog/feed"
+    },
+    {
+      "name": "GitHub Security Blog",
+      "type": "rss",
+      "url": "https://github.blog/security/feed/"
+    },
+    {
+      "name": "Socket Blog",
+      "type": "rss",
+      "url": "https://socket.dev/blog/rss.xml"
+    },
+    {
+      "name": "Trail of Bits Blog",
+      "type": "rss",
+      "url": "https://blog.trailofbits.com/feed/"
+    },
+    {
+      "name": "Cloudflare Blog",
+      "type": "rss",
+      "url": "https://blog.cloudflare.com/rss/"
+    },
+    {
+      "name": "Ethereum Foundation Blog",
+      "type": "rss",
+      "url": "https://blog.ethereum.org/feed.xml"
+    },
+    {
+      "name": "Chainalysis Blog",
+      "type": "rss",
+      "url": "https://www.chainalysis.com/blog/feed/"
+    }
+  ],
+  "officialSites": [
+    {
+      "name": "CISA Known Exploited Vulnerabilities",
+      "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+    },
+    {
+      "name": "CISA Advisories",
+      "url": "https://www.cisa.gov/news-events/cybersecurity-advisories"
+    },
+    {
+      "name": "NVD",
+      "url": "https://nvd.nist.gov/vuln"
+    },
+    {
+      "name": "GitHub Security Advisories",
+      "url": "https://github.com/advisories"
+    },
+    {
+      "name": "Microsoft Security Response Center",
+      "url": "https://msrc.microsoft.com/update-guide"
+    },
+    {
+      "name": "Google Security Blog",
+      "url": "https://security.googleblog.com/"
+    },
+    {
+      "name": "Mozilla Security Advisories",
+      "url": "https://www.mozilla.org/security/advisories/"
+    },
+    {
+      "name": "Chrome Releases",
+      "url": "https://chromereleases.googleblog.com/"
+    },
+    {
+      "name": "Apple Security Releases",
+      "url": "https://support.apple.com/en-us/100100"
+    },
+    {
+      "name": "npm Security",
+      "url": "https://github.blog/security/supply-chain-security/"
+    }
+  ],
+  "webSearch": {
+    "enabled": true,
+    "lookbackHours": 48,
+    "maxQueries": 32,
+    "recencyDays": 3,
+    "queries": [
+      "actively exploited vulnerability CISA KEV patch",
+      "critical CVE exploit patch cloud identity browser OS",
+      "npm PyPI supply chain malware GitHub Actions token leak",
+      "developer tool security advisory RCE patch",
+      "ransomware breach data leak cloud provider security incident",
+      "crypto wallet drainer exploit bridge protocol security incident",
+      "Kubernetes Docker container vulnerability patch",
+      "Chrome Firefox Safari zero day update"
+    ],
+    "officialDomainQueries": [
+      "site:cisa.gov known exploited vulnerabilities added",
+      "site:msrc.microsoft.com update guide critical exploited",
+      "site:github.com/advisories npm PyPI critical",
+      "site:security.googleblog.com exploited vulnerability",
+      "site:chromereleases.googleblog.com stable channel security update",
+      "site:mozilla.org/security/advisories critical vulnerability",
+      "site:support.apple.com security updates CVE exploited",
+      "site:blog.cloudflare.com security incident vulnerability",
+      "site:blog.ethereum.org security vulnerability",
+      "site:socket.dev/blog npm malware supply chain"
+    ]
+  }
+}

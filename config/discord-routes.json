@@ -18,9 +18,19 @@
       "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
     },
     {
-      "name": "gaming-watch",
-      "match": "-gaming-watch.md",
-      "webhookEnv": "DISCORD_GAMING_WEBHOOK_URL"
+      "name": "ai-products",
+      "match": "-ai-products-digest.md",
+      "webhookEnv": "DISCORD_AI_PRODUCTS_WEBHOOK_URL"
+    },
+    {
+      "name": "security-watch",
+      "match": "-security-watch.md",
+      "webhookEnv": "DISCORD_SECURITY_WATCH_WEBHOOK_URL"
+    },
+    {
+      "name": "startup-radar",
+      "match": "-startup-radar.md",
+      "webhookEnv": "DISCORD_STARTUP_RADAR_WEBHOOK_URL"
     }
   ]
 }

@@ -31,6 +31,9 @@ Required in local `.env` or the delivery gateway environment:
 ```bash
 DISCORD_WEBHOOK_URL=your_existing_or_default_discord_webhook_url
 DISCORD_GAMING_WEBHOOK_URL=your_gaming_discord_webhook_url
+DISCORD_AI_PRODUCTS_WEBHOOK_URL=your_ai_products_discord_webhook_url
+DISCORD_SECURITY_WATCH_WEBHOOK_URL=your_security_watch_discord_webhook_url
+DISCORD_STARTUP_RADAR_WEBHOOK_URL=your_startup_radar_discord_webhook_url
 ```
 
 Optional, if the Tech/AI digest should also use an explicit route-specific webhook instead of the default webhook:
@@ -78,7 +81,9 @@ Preferred write pattern:
 ```bash
 npm run write-report -- reports/YYYY-MM-DD-tech-ai-digest.md < /path/to/generated-report.md
 npm run write-report -- reports/YYYY-MM-DD-gaming-weekly.md < /path/to/generated-gaming-report.md
-npm run write-report -- reports/YYYY-MM-DD-gaming-watch.md < /path/to/generated-gaming-alert.md
+npm run write-report -- reports/YYYY-MM-DD-ai-products-digest.md < /path/to/generated-ai-products-report.md
+npm run write-report -- reports/YYYY-MM-DD-security-watch.md < /path/to/generated-security-alert.md
+npm run write-report -- reports/YYYY-MM-DD-startup-radar.md < /path/to/generated-startup-radar.md
 ```
 
 The helper writes to `.gateway/tmp/reports/`, fsyncs the temporary file, then renames it into `reports/`. The final rename is atomic on the same repository filesystem, so the gateway only sees complete Markdown reports.
@@ -141,7 +146,9 @@ Send one report directly:
 ```bash
 npm run send-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
 npm run send-discord -- reports/YYYY-MM-DD-gaming-weekly.md
-npm run send-discord -- reports/YYYY-MM-DD-gaming-watch.md
+npm run send-discord -- reports/YYYY-MM-DD-ai-products-digest.md
+npm run send-discord -- reports/YYYY-MM-DD-security-watch.md
+npm run send-discord -- reports/YYYY-MM-DD-startup-radar.md
 ```
 
 Send all unsent or changed reports once:
@@ -155,7 +162,9 @@ Preview how many Discord messages would be sent without touching the webhook:
 ```bash
 npm run dry-run-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-gaming-weekly.md
-npm run dry-run-discord -- reports/YYYY-MM-DD-gaming-watch.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-ai-products-digest.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-security-watch.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-startup-radar.md
 ```
 
 ## Discord Routing
@@ -164,8 +173,10 @@ Discord routing lives in `config/discord-routes.json`.
 
 - `reports/*-tech-ai-digest.md` uses `DISCORD_TECH_AI_WEBHOOK_URL` when set, otherwise it falls back to `DISCORD_WEBHOOK_URL`.
 - `reports/*-gaming-weekly.md` uses `DISCORD_GAMING_WEBHOOK_URL`.
-- `reports/*-gaming-watch.md` uses `DISCORD_GAMING_WEBHOOK_URL`.
 - `reports/*-gaming-digest.md` also uses `DISCORD_GAMING_WEBHOOK_URL` for backward compatibility with older generated reports.
+- `reports/*-ai-products-digest.md` uses `DISCORD_AI_PRODUCTS_WEBHOOK_URL`.
+- `reports/*-security-watch.md` uses `DISCORD_SECURITY_WATCH_WEBHOOK_URL`.
+- `reports/*-startup-radar.md` uses `DISCORD_STARTUP_RADAR_WEBHOOK_URL`.
 - Unmatched report names use `DISCORD_WEBHOOK_URL`.
 
 The gateway remains a single LaunchAgent. It watches `reports/`, sends each Markdown report to the route selected by filename, and keeps one shared delivery state file.
@@ -175,7 +186,10 @@ The gateway remains a single LaunchAgent. It watches `reports/`, sends each Mark
 Sources and editorial constraints live in source brief files under `config/`:
 
 - `config/sources.json`: Tech/AI/developer digest.
-- `config/gaming-sources.json`: Gaming digest.
+- `config/gaming-sources.json`: Weekly gaming digest.
+- `config/ai-products-sources.json`: Weekly AI product updates digest.
+- `config/security-watch-sources.json`: Daily high-signal security watch.
+- `config/startup-radar-sources.json`: Weekly startup/product radar.
 
 The automation should treat each file as a research brief, not as a complete crawler implementation:
 
@@ -190,19 +204,22 @@ The automation should treat each file as a research brief, not as a complete cra
 
 Every run should reject weak claims unless they can be traced to a primary source or at least two independent credible sources.
 
-For `config/gaming-sources.json`, the ideal cadence is hybrid:
+For `config/gaming-sources.json`, gaming is weekly only:
 
 - Weekly primary report: write `reports/YYYY-MM-DD-gaming-weekly.md` from `cadence.primary.reportPathTemplate`. This is the main ranked gaming digest and should cover the full week.
-- Daily watch report: write `reports/YYYY-MM-DD-gaming-watch.md` from `cadence.watch.reportPathTemplate` only when `cadence.watch.triggerIf` has a verified material hit. If the day only has routine shop rotations, weak rumors, ordinary deals, or no tracked-game updates, do not write a report.
 
 For `config/gaming-sources.json`, `trackedGames.games` can be edited directly to add or remove watched games. Set a game's `enabled` field to `false` to keep it in the config without including it in the editorial pass. Each enabled game should include aliases, platforms, official sources, and reusable search queries. The automation should add material verified updates to a `Takipteki Oyunlar` report section.
+
+For `config/security-watch-sources.json`, the automation should write `reports/YYYY-MM-DD-security-watch.md` only when `cadence.watch.triggerIf` has a verified high-signal security hit. Empty days should not create or modify a report.
 
 Recommended report paths:
 
 ```bash
 reports/YYYY-MM-DD-tech-ai-digest.md
 reports/YYYY-MM-DD-gaming-weekly.md
-reports/YYYY-MM-DD-gaming-watch.md
+reports/YYYY-MM-DD-ai-products-digest.md
+reports/YYYY-MM-DD-security-watch.md
+reports/YYYY-MM-DD-startup-radar.md
 ```
 
 The existing delivery gateway sends both reports because it watches all Markdown files in `reports/`.
@@ -230,11 +247,12 @@ Gaming weekly output should use this Turkish structure:
 - Possible rumor/noise
 - A short action list
 
-Gaming watch output should be shorter and only include material verified updates:
+Security watch output should be shorter and only include material verified updates:
 
 - Short title with date
 - Why this matters
-- Tracked-game or platform updates
+- Affected products/systems
+- Mitigation or monitoring action
 - Action list
 
 For multi-message Discord delivery, the gateway splits long Markdown reports at safe text boundaries without adding visible part headers. Give each report a clear H1 such as `# Daily Tech/AI Digest` or `# Daily Gaming Digest`.
