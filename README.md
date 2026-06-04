@@ -48,6 +48,7 @@ Optional route-specific webhooks. These fall back to `DISCORD_WEBHOOK_URL` when 
 ```bash
 DISCORD_TECH_AI_WEBHOOK_URL=your_tech_ai_discord_webhook_url
 DISCORD_MARKETS_WEBHOOK_URL=your_markets_discord_webhook_url
+DISCORD_MARKETS_SECONDARY_WEBHOOK_URL=your_second_markets_discord_webhook_url
 ```
 
 Optional for Codex/tooling workflows:
@@ -202,10 +203,12 @@ Discord routing lives in `config/discord-routes.json`.
 - `reports/*-ai-products-digest.md` uses `DISCORD_AI_PRODUCTS_WEBHOOK_URL`.
 - `reports/*-security-watch.md` uses `DISCORD_SECURITY_WATCH_WEBHOOK_URL`.
 - `reports/*-startup-radar.md` uses `DISCORD_STARTUP_RADAR_WEBHOOK_URL`.
-- `reports/*-markets-digest.md` uses `DISCORD_MARKETS_WEBHOOK_URL` when set, otherwise it falls back to `DISCORD_WEBHOOK_URL`.
+- `reports/*-markets-digest.md` uses every configured markets webhook that is set: `DISCORD_MARKETS_WEBHOOK_URL` and optional `DISCORD_MARKETS_SECONDARY_WEBHOOK_URL`. If neither markets webhook is set, it falls back to `DISCORD_WEBHOOK_URL`.
 - Unmatched report names use `DISCORD_WEBHOOK_URL`.
 
 The gateway remains a single LaunchAgent. It watches `reports/`, sends each Markdown report to the route selected by filename, and keeps one shared delivery state file.
+
+Routes can use either a single `webhookEnv` or a fan-out `webhookEnvs` array in `config/discord-routes.json`. `fallbackWebhookEnv` is not a second destination; it is used only when none of the primary route webhook envs are set.
 
 ## Digest Configurations
 
@@ -314,6 +317,8 @@ These paths are intentionally not committed:
 State entries include:
 
 - content hash
+- delivery target signature
+- per-target delivery hashes
 - delivery status
 - attempt count
 - sent timestamp

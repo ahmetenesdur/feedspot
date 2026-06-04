@@ -23,6 +23,7 @@
     "gateway:run": "node scripts/gateway.mjs run",
     "gateway:mark-delivered": "node scripts/gateway.mjs mark-delivered",
     "gateway:doctor": "node scripts/gateway.mjs doctor",
+    "test": "node --test test/*.test.mjs",
     "delivery:install": "node scripts/gateway.mjs install",
     "delivery:uninstall": "node scripts/gateway.mjs uninstall",
     "delivery:start": "node scripts/gateway.mjs start",
@@ -33,7 +34,7 @@
     "delivery:run": "node scripts/gateway.mjs run",
     "delivery:mark-delivered": "node scripts/gateway.mjs mark-delivered",
     "check-feeds": "node src/check-feeds.mjs",
-    "check": "node --check src/post-to-discord.mjs && node --check src/write-report.mjs && node --check src/deliver-pending.mjs && node --check src/check-config.mjs && node --check src/check-feeds.mjs && node --check scripts/gateway.mjs && node src/check-config.mjs"
+    "check": "node --check src/post-to-discord.mjs && node --check src/write-report.mjs && node --check src/deliver-pending.mjs && node --check src/check-config.mjs && node --check src/check-feeds.mjs && node --check scripts/gateway.mjs && node src/check-config.mjs && npm test"
   },
   "keywords": [],
   "author": "",

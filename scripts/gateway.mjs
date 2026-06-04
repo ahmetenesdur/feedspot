@@ -217,6 +217,12 @@ function discordWebhookLooksValid(webhook) {
   }
 }
 
+function routeWebhookEnvs(route) {
+  if (Array.isArray(route.webhookEnvs)) return route.webhookEnvs;
+  if (route.webhookEnv) return [route.webhookEnv];
+  return [];
+}
+
 function discordRouteChecks(discordRoutes) {
   const defaultWebhookEnv = discordRoutes.defaultWebhookEnv || "DISCORD_WEBHOOK_URL";
   const checks = [];
@@ -237,11 +243,19 @@ function discordRouteChecks(discordRoutes) {
   }
 
   for (const route of discordRoutes.routes || []) {
-    const primaryWebhook = process.env[route.webhookEnv] || "";
+    const webhookEnvs = routeWebhookEnvs(route);
+    const activeWebhookEnvs = webhookEnvs.filter((envName) => process.env[envName]);
     const fallbackWebhook = route.fallbackWebhookEnv ? process.env[route.fallbackWebhookEnv] || "" : "";
-    const activeEnv = primaryWebhook ? route.webhookEnv : fallbackWebhook ? route.fallbackWebhookEnv : null;
-    const activeWebhook = primaryWebhook || fallbackWebhook;
-    const requiredEnvs = [route.webhookEnv, route.fallbackWebhookEnv].filter(Boolean).join(" or ");
+    const activeEnv = activeWebhookEnvs.length > 0
+      ? activeWebhookEnvs.join(", ")
+      : fallbackWebhook
+        ? route.fallbackWebhookEnv
+        : null;
+    const activeWebhooks = activeWebhookEnvs.map((envName) => [envName, process.env[envName]]);
+    if (activeWebhookEnvs.length === 0 && fallbackWebhook) {
+      activeWebhooks.push([route.fallbackWebhookEnv, fallbackWebhook]);
+    }
+    const requiredEnvs = [...webhookEnvs, route.fallbackWebhookEnv].filter(Boolean).join(" or ");
 
     checks.push([
       `Discord route ${route.name} env`,
@@ -253,11 +267,13 @@ function discordRouteChecks(discordRoutes) {
         : `missing ${requiredEnvs}`,
     ]);
 
-    checks.push([
-      `Discord route ${route.name} format`,
-      Boolean(activeWebhook) && discordWebhookLooksValid(activeWebhook),
-      activeWebhook ? "checked without printing value" : `missing ${requiredEnvs}`,
-    ]);
+    for (const [envName, webhook] of activeWebhooks) {
+      checks.push([
+        `Discord route ${route.name} format (${envName})`,
+        discordWebhookLooksValid(webhook),
+        "checked without printing value",
+      ]);
+    }
   }
 
   return checks;

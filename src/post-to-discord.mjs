@@ -13,7 +13,11 @@ const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run") || process.env.DISCORD_DRY_RUN === "1";
 const jsonOutput = args.includes("--json");
 const suppressEmbeds = process.env.DISCORD_SUPPRESS_EMBEDS !== "0";
-const reportPath = args.find((arg) => !["--dry-run", "--json"].includes(arg));
+const targetEnvFilters = args
+  .filter((arg) => arg.startsWith("--target-env="))
+  .map((arg) => arg.slice("--target-env=".length))
+  .filter(Boolean);
+const reportPath = args.find((arg) => !["--dry-run", "--json"].includes(arg) && !arg.startsWith("--target-env="));
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -73,28 +77,64 @@ function routeForReport(filePath) {
   if (!route) {
     return {
       name: "default",
-      webhookEnv: defaultWebhookEnv,
+      webhookEnvs: [defaultWebhookEnv],
       fallbackWebhookEnv: null,
     };
   }
 
   return {
     name: route.name,
-    webhookEnv: route.webhookEnv,
+    webhookEnvs: route.webhookEnvs || [route.webhookEnv],
     fallbackWebhookEnv: route.fallbackWebhookEnv || null,
   };
 }
 
-function resolveWebhook(route) {
-  const candidates = [route.webhookEnv, route.fallbackWebhookEnv].filter(Boolean);
-  const activeWebhookEnv = candidates.find((envName) => process.env[envName]);
+function uniqueItems(items) {
+  return [...new Set(items.filter(Boolean))];
+}
+
+function publicTarget(target) {
+  return {
+    configuredWebhookEnv: target.configuredWebhookEnv,
+    webhookEnv: target.webhookEnv,
+    fallbackUsed: target.fallbackUsed,
+  };
+}
+
+function resolveDelivery(route, targetEnvFilters = []) {
+  const configuredWebhookEnvs = uniqueItems(route.webhookEnvs);
+  const primaryTargets = configuredWebhookEnvs
+    .filter((envName) => process.env[envName])
+    .map((envName) => ({
+      configuredWebhookEnv: envName,
+      webhookEnv: envName,
+      webhookUrl: process.env[envName],
+      fallbackUsed: false,
+    }));
+
+  const fallbackWebhookUrl = route.fallbackWebhookEnv ? process.env[route.fallbackWebhookEnv] : "";
+  const targets = primaryTargets.length > 0
+    ? primaryTargets
+    : fallbackWebhookUrl
+      ? [
+          {
+            configuredWebhookEnv: configuredWebhookEnvs[0] || route.fallbackWebhookEnv,
+            webhookEnv: route.fallbackWebhookEnv,
+            webhookUrl: fallbackWebhookUrl,
+            fallbackUsed: true,
+          },
+        ]
+      : [];
+  const selectedTargets = targetEnvFilters.length > 0
+    ? targets.filter((target) => targetEnvFilters.includes(target.webhookEnv))
+    : targets;
 
   return {
     routeName: route.name,
-    configuredWebhookEnv: route.webhookEnv,
-    webhookEnv: activeWebhookEnv || route.webhookEnv,
-    webhookUrl: activeWebhookEnv ? process.env[activeWebhookEnv] : "",
-    fallbackUsed: Boolean(activeWebhookEnv && activeWebhookEnv === route.fallbackWebhookEnv),
+    configuredWebhookEnvs,
+    fallbackWebhookEnv: route.fallbackWebhookEnv,
+    targets: selectedTargets,
+    deliveryKey: selectedTargets.map((target) => target.webhookEnv).join(","),
   };
 }
 
@@ -166,7 +206,7 @@ async function main() {
   }
 
   const route = routeForReport(reportPath);
-  const webhook = resolveWebhook(route);
+  const delivery = resolveDelivery(route, targetEnvFilters);
 
   const report = await readFile(reportPath, "utf8");
 
@@ -174,8 +214,11 @@ async function main() {
     throw new Error("Report is empty.");
   }
 
-  if (!webhook.webhookUrl && !dryRun) {
-    throw new Error(`${webhook.configuredWebhookEnv} is missing for ${webhook.routeName} Discord route.`);
+  if (delivery.targets.length === 0 && !dryRun) {
+    const requiredEnvs = [...delivery.configuredWebhookEnvs, delivery.fallbackWebhookEnv]
+      .filter(Boolean)
+      .join(" or ");
+    throw new Error(`${requiredEnvs} is missing for ${delivery.routeName} Discord route.`);
   }
 
   const chunks = splitDiscordMessage(report);
@@ -186,30 +229,49 @@ async function main() {
       reportPath,
       chunks: chunks.length,
       suppressEmbeds,
-      route: webhook.routeName,
-      webhookEnv: webhook.webhookEnv,
-      fallbackUsed: webhook.fallbackUsed,
+      route: delivery.routeName,
+      webhookEnv: delivery.targets[0]?.webhookEnv || delivery.configuredWebhookEnvs[0] || delivery.fallbackWebhookEnv,
+      fallbackUsed: delivery.targets.some((target) => target.fallbackUsed),
+      targetCount: delivery.targets.length,
+      deliveryKey: delivery.deliveryKey,
+      targets: delivery.targets.map(publicTarget),
     };
 
     if (jsonOutput) {
       console.log(JSON.stringify(summary));
     } else {
       console.log(
-        `Dry run: ${chunks.length} Discord message(s) would be sent from ${reportPath} via ${webhook.routeName} route using ${webhook.webhookEnv} (${embedMode}).`,
+        `Dry run: ${chunks.length} Discord message(s) would be sent to ${delivery.targets.length} target(s) from ${reportPath} via ${delivery.routeName} route (${embedMode}).`,
       );
     }
     return;
   }
 
   const messages = [];
+  const targets = [];
 
-  for (let index = 0; index < chunks.length; index++) {
-    const message = await postDiscordChunk(chunks[index], webhook.webhookUrl);
-    messages.push({
-      index: index + 1,
-      ...message,
+  for (let targetIndex = 0; targetIndex < delivery.targets.length; targetIndex++) {
+    const target = delivery.targets[targetIndex];
+    const targetMessages = [];
+
+    for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+      const message = await postDiscordChunk(chunks[chunkIndex], target.webhookUrl);
+      const deliveredMessage = {
+        targetIndex: targetIndex + 1,
+        webhookEnv: target.webhookEnv,
+        index: chunkIndex + 1,
+        ...message,
+      };
+
+      targetMessages.push(deliveredMessage);
+      messages.push(deliveredMessage);
+      await sleep(1_000);
+    }
+
+    targets.push({
+      ...publicTarget(target),
+      messages: targetMessages,
     });
-    await sleep(1_000);
   }
 
   const summary = {
@@ -217,9 +279,12 @@ async function main() {
     reportPath,
     chunks: chunks.length,
     suppressEmbeds,
-    route: webhook.routeName,
-    webhookEnv: webhook.webhookEnv,
-    fallbackUsed: webhook.fallbackUsed,
+    route: delivery.routeName,
+    webhookEnv: delivery.targets[0]?.webhookEnv,
+    fallbackUsed: delivery.targets.some((target) => target.fallbackUsed),
+    targetCount: delivery.targets.length,
+    deliveryKey: delivery.deliveryKey,
+    targets,
     messages,
   };
 

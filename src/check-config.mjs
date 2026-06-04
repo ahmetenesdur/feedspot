@@ -26,6 +26,19 @@ function isDiscordWebhookEnvName(value) {
   return typeof value === "string" && /^DISCORD(?:_[A-Z0-9]+)*_WEBHOOK_URL$/.test(value);
 }
 
+function assertDiscordWebhookEnvName(value, label) {
+  assert(
+    isDiscordWebhookEnvName(value),
+    `${label} should name a Discord webhook environment variable.`,
+  );
+}
+
+function routeWebhookEnvs(route) {
+  if (Array.isArray(route.webhookEnvs)) return route.webhookEnvs;
+  if (route.webhookEnv) return [route.webhookEnv];
+  return [];
+}
+
 function assertNamedUrls(items, label) {
   for (const [index, item] of items.entries()) {
     assert(typeof item.name === "string" && item.name.trim(), `${label}[${index}].name is required.`);
@@ -215,16 +228,21 @@ function validateDiscordRoutes(discordRoutes, label) {
     assert(!matches.has(route.match), `${label}: duplicate route match ${route.match}.`);
     matches.add(route.match);
 
+    const webhookEnvs = routeWebhookEnvs(route);
+    assert(webhookEnvs.length > 0, `${label}: routes[${index}] must include webhookEnv or webhookEnvs.`);
+
+    const duplicateWebhookEnvs = webhookEnvs.filter((envName, envIndex) => webhookEnvs.indexOf(envName) !== envIndex);
     assert(
-      isDiscordWebhookEnvName(route.webhookEnv),
-      `${label}: routes[${index}].webhookEnv should name a Discord webhook environment variable.`,
+      duplicateWebhookEnvs.length === 0,
+      `${label}: routes[${index}].webhookEnvs contains duplicate env name(s): ${[...new Set(duplicateWebhookEnvs)].join(", ")}`,
     );
 
+    for (const [envIndex, envName] of webhookEnvs.entries()) {
+      assertDiscordWebhookEnvName(envName, `${label}: routes[${index}].webhookEnvs[${envIndex}]`);
+    }
+
     if (route.fallbackWebhookEnv) {
-      assert(
-        isDiscordWebhookEnvName(route.fallbackWebhookEnv),
-        `${label}: routes[${index}].fallbackWebhookEnv should name a Discord webhook environment variable.`,
-      );
+      assertDiscordWebhookEnvName(route.fallbackWebhookEnv, `${label}: routes[${index}].fallbackWebhookEnv`);
     }
   }
 }

@@ -35,7 +35,10 @@
     {
       "name": "markets",
       "match": "-markets-digest.md",
-      "webhookEnv": "DISCORD_MARKETS_WEBHOOK_URL",
+      "webhookEnvs": [
+        "DISCORD_MARKETS_WEBHOOK_URL",
+        "DISCORD_MARKETS_SECONDARY_WEBHOOK_URL"
+      ],
       "fallbackWebhookEnv": "DISCORD_WEBHOOK_URL"
     }
   ]

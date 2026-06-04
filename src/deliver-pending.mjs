@@ -148,9 +148,10 @@ async function releaseLock() {
   await rm(lockPath, { force: true }).catch(() => {});
 }
 
-function sendReport(reportPath) {
+function sendReport(reportPath, targetEnvs = []) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [sendScript, "--json", reportPath], {
+    const targetArgs = targetEnvs.map((envName) => `--target-env=${envName}`);
+    const child = spawn(process.execPath, [sendScript, "--json", ...targetArgs, reportPath], {
       cwd: process.cwd(),
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
@@ -187,12 +188,85 @@ function sendReport(reportPath) {
   });
 }
 
-function deliveredEntry(hash, previousEntry, result) {
+function inspectReportDelivery(reportPath) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, [sendScript, "--json", "--dry-run", reportPath], {
+      cwd: process.cwd(),
+      env: process.env,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if (code !== 0) {
+        reject(
+          new Error(
+            stderr.trim() ||
+              stdout.trim() ||
+              `Discord delivery inspection failed for ${reportPath} with exit code ${code}.`,
+          ),
+        );
+        return;
+      }
+
+      try {
+        resolve(JSON.parse(stdout.trim()));
+      } catch (error) {
+        reject(new Error(`Could not parse Discord delivery inspection for ${reportPath}.`, { cause: error }));
+      }
+    });
+  });
+}
+
+function shouldSkipDelivery(previousEntry, hash, deliveryKey) {
+  if (previousEntry?.hash !== hash || previousEntry.status !== "delivered") return false;
+
+  // Legacy delivered entries did not record deliveryKey; keep them skipped to avoid reposting old reports.
+  if (!previousEntry.deliveryKey) return true;
+
+  return previousEntry.deliveryKey === deliveryKey;
+}
+
+function targetHashesFor(hash, targets) {
+  return Object.fromEntries((targets || []).map((target) => [target.webhookEnv, hash]));
+}
+
+function targetEnvsNeedingDelivery(previousEntry, hash, inspection) {
+  if (shouldSkipDelivery(previousEntry, hash, inspection.deliveryKey)) return [];
+
+  if (previousEntry?.hash !== hash || previousEntry.status !== "delivered") {
+    return (inspection.targets || []).map((target) => target.webhookEnv);
+  }
+
+  const previousTargetHashes = previousEntry.targetHashes || {};
+  return (inspection.targets || [])
+    .map((target) => target.webhookEnv)
+    .filter((envName) => previousTargetHashes[envName] !== hash);
+}
+
+function deliveredEntry(hash, previousEntry, result, inspection = result) {
   const previousAttempts = Number(previousEntry?.attempts || 0);
+  const targetHashes = {
+    ...(previousEntry?.targetHashes || {}),
+    ...targetHashesFor(hash, result.targets),
+  };
 
   return {
     hash,
     status: "delivered",
+    deliveryKey: inspection.deliveryKey || result.deliveryKey || null,
+    targetCount: inspection.targetCount ?? result.targetCount ?? null,
+    targets: inspection.targets || result.targets || [],
+    targetHashes,
     attempts: previousAttempts + 1,
     chunks: result.chunks,
     messages: result.messages || [],
@@ -202,12 +276,16 @@ function deliveredEntry(hash, previousEntry, result) {
   };
 }
 
-function failedEntry(hash, previousEntry, error) {
+function failedEntry(hash, previousEntry, error, inspection = null) {
   const previousAttempts = Number(previousEntry?.attempts || 0);
 
   return {
     hash,
     status: "failed",
+    deliveryKey: inspection?.deliveryKey || previousEntry?.deliveryKey || null,
+    targetCount: inspection?.targetCount ?? previousEntry?.targetCount ?? null,
+    targets: inspection?.targets || previousEntry?.targets || [],
+    targetHashes: previousEntry?.targetHashes || {},
     attempts: previousAttempts + 1,
     chunks: previousEntry?.chunks ?? null,
     messages: previousEntry?.messages || [],
@@ -229,10 +307,15 @@ try {
     for (const reportPath of reports) {
       const hash = await hashFile(reportPath);
       const previousEntry = state.reports[reportPath];
+      const inspection = await inspectReportDelivery(reportPath);
 
       state.reports[reportPath] = {
         hash,
         status: "delivered",
+        deliveryKey: inspection.deliveryKey || null,
+        targetCount: inspection.targetCount ?? null,
+        targets: inspection.targets || [],
+        targetHashes: targetHashesFor(hash, inspection.targets),
         attempts: previousEntry?.attempts || 0,
         chunks: previousEntry?.chunks ?? null,
         messages: previousEntry?.messages || [],
@@ -252,17 +335,19 @@ try {
     for (const reportPath of reports) {
       const hash = await hashFile(reportPath);
       const previousEntry = state.reports[reportPath];
+      const inspection = await inspectReportDelivery(reportPath);
+      const missingTargetEnvs = targetEnvsNeedingDelivery(previousEntry, hash, inspection);
 
-      if (previousEntry?.hash === hash && previousEntry.status === "delivered") continue;
+      if (missingTargetEnvs.length === 0) continue;
 
       try {
-        const result = await sendReport(reportPath);
-        state.reports[reportPath] = deliveredEntry(hash, previousEntry, result);
+        const result = await sendReport(reportPath, missingTargetEnvs);
+        state.reports[reportPath] = deliveredEntry(hash, previousEntry, result, inspection);
         delivered += 1;
         await writeState(state);
-        console.log(`Delivered ${reportPath} in ${result.chunks} chunk(s).`);
+        console.log(`Delivered ${reportPath} to ${result.targetCount || 0} target(s) in ${result.chunks} chunk(s) each.`);
       } catch (error) {
-        state.reports[reportPath] = failedEntry(hash, previousEntry, error);
+        state.reports[reportPath] = failedEntry(hash, previousEntry, error, inspection);
         failed += 1;
         await writeState(state);
         console.error(`Failed to deliver ${reportPath}: ${error.message}`);
