@@ -31,6 +31,12 @@
       "name": "startup-radar",
       "match": "-startup-radar.md",
       "webhookEnv": "DISCORD_STARTUP_RADAR_WEBHOOK_URL"
+    },
+    {
+      "name": "markets",
+      "match": "-markets-digest.md",
+      "webhookEnv": "DISCORD_MARKETS_WEBHOOK_URL",
+      "fallbackWebhookEnv": "DISCORD_WEBHOOK_URL"
     }
   ]
 }

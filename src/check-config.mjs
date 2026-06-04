@@ -47,10 +47,23 @@ function validateCadence(cadence, label) {
 
   if (cadence.primary) {
     assert(typeof cadence.primary.name === "string" && cadence.primary.name.trim(), `${label}: cadence.primary.name is required.`);
-    assert(cadence.primary.schedule === "weekly", `${label}: cadence.primary.schedule must be weekly.`);
-    assert(typeof cadence.primary.recommendedDay === "string" && cadence.primary.recommendedDay.trim(), `${label}: cadence.primary.recommendedDay is required.`);
+    assert(
+      cadence.primary.schedule === "daily" || cadence.primary.schedule === "weekly",
+      `${label}: cadence.primary.schedule must be daily or weekly.`,
+    );
+    if (cadence.primary.schedule === "weekly") {
+      assert(typeof cadence.primary.recommendedDay === "string" && cadence.primary.recommendedDay.trim(), `${label}: cadence.primary.recommendedDay is required.`);
+    }
+    if (cadence.primary.schedule === "daily") {
+      assert(typeof cadence.primary.recommendedTime === "string" && cadence.primary.recommendedTime.trim(), `${label}: cadence.primary.recommendedTime is required.`);
+    }
     assert(Number.isInteger(cadence.primary.lookbackHours), `${label}: cadence.primary.lookbackHours must be an integer.`);
-    assert(cadence.primary.lookbackHours >= 120, `${label}: cadence.primary.lookbackHours should cover most of a week.`);
+    assert(
+      cadence.primary.schedule === "weekly"
+        ? cadence.primary.lookbackHours >= 120
+        : cadence.primary.lookbackHours >= 24,
+      `${label}: cadence.primary.lookbackHours should cover the configured cadence window.`,
+    );
     assertReportPathTemplate(cadence.primary.reportPathTemplate, `${label}: cadence.primary.reportPathTemplate`);
     assert(
       cadence.primary.postWhenNoMajorNews === true || cadence.primary.postWhenNoMajorNews === false,

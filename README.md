@@ -26,20 +26,28 @@ No Discord bot, server, GitHub Actions workflow, or model API client is required
 
 ## Environment
 
-Required in local `.env` or the delivery gateway environment:
+Use `.env.example` as the safe template for local setup. Real webhook URLs and tokens belong in local `.env` or the delivery gateway environment; never commit them.
+
+Required default webhook:
 
 ```bash
 DISCORD_WEBHOOK_URL=your_existing_or_default_discord_webhook_url
+```
+
+Required when the corresponding digest route is expected to post to its own Discord destination:
+
+```bash
 DISCORD_GAMING_WEBHOOK_URL=your_gaming_discord_webhook_url
 DISCORD_AI_PRODUCTS_WEBHOOK_URL=your_ai_products_discord_webhook_url
 DISCORD_SECURITY_WATCH_WEBHOOK_URL=your_security_watch_discord_webhook_url
 DISCORD_STARTUP_RADAR_WEBHOOK_URL=your_startup_radar_discord_webhook_url
 ```
 
-Optional, if the Tech/AI digest should also use an explicit route-specific webhook instead of the default webhook:
+Optional route-specific webhooks. These fall back to `DISCORD_WEBHOOK_URL` when unset:
 
 ```bash
 DISCORD_TECH_AI_WEBHOOK_URL=your_tech_ai_discord_webhook_url
+DISCORD_MARKETS_WEBHOOK_URL=your_markets_discord_webhook_url
 ```
 
 Optional for Codex/tooling workflows:
@@ -52,9 +60,10 @@ Optional Discord delivery behavior:
 
 ```bash
 DISCORD_SUPPRESS_EMBEDS=0
+DISCORD_DRY_RUN=1
 ```
 
-Link previews are suppressed by default. Set `DISCORD_SUPPRESS_EMBEDS=0` only if Discord should expand source URLs into preview cards.
+Link previews are suppressed by default. Set `DISCORD_SUPPRESS_EMBEDS=0` only if Discord should expand source URLs into preview cards. `DISCORD_DRY_RUN=1` makes `src/post-to-discord.mjs` avoid webhook delivery and print a delivery summary instead.
 
 Discord webhook URLs are never printed or logged.
 
@@ -72,6 +81,19 @@ Run checks:
 npm run check
 ```
 
+Check RSS feed reachability when source lists change:
+
+```bash
+npm run check-feeds -- config/markets-sources.json
+npm run check-feeds
+```
+
+Run local delivery diagnostics:
+
+```bash
+npm run gateway:doctor
+```
+
 ## Atomic Report Writes
 
 Reports should not be written directly to their final path. A partial write can trigger delivery before the Markdown file is complete.
@@ -84,6 +106,7 @@ npm run write-report -- reports/YYYY-MM-DD-gaming-weekly.md < /path/to/generated
 npm run write-report -- reports/YYYY-MM-DD-ai-products-digest.md < /path/to/generated-ai-products-report.md
 npm run write-report -- reports/YYYY-MM-DD-security-watch.md < /path/to/generated-security-alert.md
 npm run write-report -- reports/YYYY-MM-DD-startup-radar.md < /path/to/generated-startup-radar.md
+npm run write-report -- reports/YYYY-MM-DD-markets-digest.md < /path/to/generated-markets-report.md
 ```
 
 The helper writes to `.gateway/tmp/reports/`, fsyncs the temporary file, then renames it into `reports/`. The final rename is atomic on the same repository filesystem, so the gateway only sees complete Markdown reports.
@@ -149,6 +172,7 @@ npm run send-discord -- reports/YYYY-MM-DD-gaming-weekly.md
 npm run send-discord -- reports/YYYY-MM-DD-ai-products-digest.md
 npm run send-discord -- reports/YYYY-MM-DD-security-watch.md
 npm run send-discord -- reports/YYYY-MM-DD-startup-radar.md
+npm run send-discord -- reports/YYYY-MM-DD-markets-digest.md
 ```
 
 Send all unsent or changed reports once:
@@ -165,6 +189,7 @@ npm run dry-run-discord -- reports/YYYY-MM-DD-gaming-weekly.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-ai-products-digest.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-security-watch.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-startup-radar.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-markets-digest.md
 ```
 
 ## Discord Routing
@@ -177,6 +202,7 @@ Discord routing lives in `config/discord-routes.json`.
 - `reports/*-ai-products-digest.md` uses `DISCORD_AI_PRODUCTS_WEBHOOK_URL`.
 - `reports/*-security-watch.md` uses `DISCORD_SECURITY_WATCH_WEBHOOK_URL`.
 - `reports/*-startup-radar.md` uses `DISCORD_STARTUP_RADAR_WEBHOOK_URL`.
+- `reports/*-markets-digest.md` uses `DISCORD_MARKETS_WEBHOOK_URL` when set, otherwise it falls back to `DISCORD_WEBHOOK_URL`.
 - Unmatched report names use `DISCORD_WEBHOOK_URL`.
 
 The gateway remains a single LaunchAgent. It watches `reports/`, sends each Markdown report to the route selected by filename, and keeps one shared delivery state file.
@@ -190,6 +216,7 @@ Sources and editorial constraints live in source brief files under `config/`:
 - `config/ai-products-sources.json`: Weekly AI product updates digest.
 - `config/security-watch-sources.json`: Daily high-signal security watch.
 - `config/startup-radar-sources.json`: Weekly startup/product radar.
+- `config/markets-sources.json`: Daily global markets digest.
 
 The automation should treat each file as a research brief, not as a complete crawler implementation:
 
@@ -212,6 +239,8 @@ For `config/gaming-sources.json`, `trackedGames.games` can be edited directly to
 
 For `config/security-watch-sources.json`, the automation should write `reports/YYYY-MM-DD-security-watch.md` only when `cadence.watch.triggerIf` has a verified high-signal security hit. Empty days should not create or modify a report.
 
+For `config/markets-sources.json`, the automation should write `reports/YYYY-MM-DD-markets-digest.md` every day. Quiet days should produce a short, calm report that explains the current market focus instead of forcing weak or speculative stories.
+
 Recommended report paths:
 
 ```bash
@@ -220,9 +249,10 @@ reports/YYYY-MM-DD-gaming-weekly.md
 reports/YYYY-MM-DD-ai-products-digest.md
 reports/YYYY-MM-DD-security-watch.md
 reports/YYYY-MM-DD-startup-radar.md
+reports/YYYY-MM-DD-markets-digest.md
 ```
 
-The existing delivery gateway sends both reports because it watches all Markdown files in `reports/`.
+The existing delivery gateway sends all Markdown reports because it watches all Markdown files in `reports/`.
 
 ## Output
 
@@ -255,13 +285,25 @@ Security watch output should be shorter and only include material verified updat
 - Mitigation or monitoring action
 - Action list
 
-For multi-message Discord delivery, the gateway splits long Markdown reports at safe text boundaries without adding visible part headers. Give each report a clear H1 such as `# Daily Tech/AI Digest` or `# Daily Gaming Digest`.
+Markets daily output should use this Turkish structure:
+
+- Short TL;DR
+- Market regime
+- Crypto: Bitcoin, Ethereum, and major altcoins
+- US equities: Nasdaq, S&P 500, and mega-cap technology
+- Europe and global macro
+- Turkey markets
+- Calendar and watch items
+- Possible noise
+- A short action list
+
+For multi-message Discord delivery, the gateway splits long Markdown reports at safe text boundaries without adding visible part headers. Give each report a clear H1 such as `# Daily Tech/AI Digest`, `# Daily Gaming Digest`, or `# Daily Global Markets Digest`.
 
 ## Ignored Local State
 
 These paths are intentionally not committed:
 
-- `.env`
+- `.env` and `.env.*`, except tracked `.env.example`
 - `node_modules/`
 - `reports/`
 - `logs/`
