@@ -3,6 +3,8 @@ import path from "node:path";
 
 const reportsDir = "reports";
 const tempDir = path.join(".gateway", "tmp", "reports");
+const asciiTurkishPattern = /\b(?:bulten(?:i|ler)?|baglam(?:i|inda|ini)?|yatirim(?:ci|cilar|lar)?|degil(?:dir)?|bugun(?:ku)?|turkiye(?:de|nin)?)\b/giu;
+const maxAllowedAsciiTurkishMatches = 2;
 const targetPath = process.argv[2];
 
 if (!targetPath) {
@@ -22,9 +24,18 @@ for await (const chunk of process.stdin) {
 }
 
 const content = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk)));
+const text = content.toString("utf8");
 
-if (content.toString("utf8").trim().length === 0) {
+if (text.trim().length === 0) {
   throw new Error("Refusing to write an empty report.");
+}
+
+const asciiTurkishMatches = text.match(asciiTurkishPattern) || [];
+
+if (asciiTurkishMatches.length > maxAllowedAsciiTurkishMatches) {
+  throw new Error(
+    "Report appears to use ASCII transliterations in Turkish prose. Regenerate it with native Turkish Unicode characters (ç, ğ, ı, İ, ö, ş, ü).",
+  );
 }
 
 await mkdir(path.dirname(normalizedTarget), { recursive: true });
