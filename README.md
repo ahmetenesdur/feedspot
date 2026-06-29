@@ -47,6 +47,7 @@ Optional route-specific webhooks. These fall back to `DISCORD_WEBHOOK_URL` when 
 
 ```bash
 DISCORD_TECH_AI_WEBHOOK_URL=your_tech_ai_discord_webhook_url
+DISCORD_GLOBAL_NEWS_WEBHOOK_URL=your_global_news_discord_webhook_url
 DISCORD_MARKETS_WEBHOOK_URL=your_markets_discord_webhook_url
 DISCORD_MARKETS_SECONDARY_WEBHOOK_URL=your_second_markets_discord_webhook_url
 ```
@@ -106,6 +107,7 @@ npm run write-report -- reports/YYYY-MM-DD-tech-ai-digest.md < /path/to/generate
 npm run write-report -- reports/YYYY-MM-DD-gaming-weekly.md < /path/to/generated-gaming-report.md
 npm run write-report -- reports/YYYY-MM-DD-ai-products-digest.md < /path/to/generated-ai-products-report.md
 npm run write-report -- reports/YYYY-MM-DD-security-watch.md < /path/to/generated-security-alert.md
+npm run write-report -- reports/YYYY-MM-DD-global-news-digest.md < /path/to/generated-global-news-report.md
 npm run write-report -- reports/YYYY-MM-DD-startup-radar.md < /path/to/generated-startup-radar.md
 npm run write-report -- reports/YYYY-MM-DD-markets-digest.md < /path/to/generated-markets-report.md
 ```
@@ -172,6 +174,7 @@ npm run send-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
 npm run send-discord -- reports/YYYY-MM-DD-gaming-weekly.md
 npm run send-discord -- reports/YYYY-MM-DD-ai-products-digest.md
 npm run send-discord -- reports/YYYY-MM-DD-security-watch.md
+npm run send-discord -- reports/YYYY-MM-DD-global-news-digest.md
 npm run send-discord -- reports/YYYY-MM-DD-startup-radar.md
 npm run send-discord -- reports/YYYY-MM-DD-markets-digest.md
 ```
@@ -189,6 +192,7 @@ npm run dry-run-discord -- reports/YYYY-MM-DD-tech-ai-digest.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-gaming-weekly.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-ai-products-digest.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-security-watch.md
+npm run dry-run-discord -- reports/YYYY-MM-DD-global-news-digest.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-startup-radar.md
 npm run dry-run-discord -- reports/YYYY-MM-DD-markets-digest.md
 ```
@@ -202,6 +206,7 @@ Discord routing lives in `config/discord-routes.json`.
 - `reports/*-gaming-digest.md` also uses `DISCORD_GAMING_WEBHOOK_URL` for backward compatibility with older generated reports.
 - `reports/*-ai-products-digest.md` uses `DISCORD_AI_PRODUCTS_WEBHOOK_URL`.
 - `reports/*-security-watch.md` uses `DISCORD_SECURITY_WATCH_WEBHOOK_URL`.
+- `reports/*-global-news-digest.md` uses `DISCORD_GLOBAL_NEWS_WEBHOOK_URL` when set, otherwise it falls back to `DISCORD_WEBHOOK_URL`.
 - `reports/*-startup-radar.md` uses `DISCORD_STARTUP_RADAR_WEBHOOK_URL`.
 - `reports/*-markets-digest.md` uses every configured markets webhook that is set: `DISCORD_MARKETS_WEBHOOK_URL` and optional `DISCORD_MARKETS_SECONDARY_WEBHOOK_URL`. If neither markets webhook is set, it falls back to `DISCORD_WEBHOOK_URL`.
 - Unmatched report names use `DISCORD_WEBHOOK_URL`.
@@ -218,6 +223,7 @@ Sources and editorial constraints live in source brief files under `config/`:
 - `config/gaming-sources.json`: Weekly gaming digest.
 - `config/ai-products-sources.json`: Weekly AI product updates digest.
 - `config/security-watch-sources.json`: Daily high-signal security watch.
+- `config/global-news-sources.json`: Daily ranked global news digest.
 - `config/startup-radar-sources.json`: Weekly startup/product radar.
 - `config/markets-sources.json`: Daily global markets digest.
 
@@ -242,6 +248,8 @@ For `config/gaming-sources.json`, `trackedGames.games` can be edited directly to
 
 For `config/security-watch-sources.json`, the automation should write `reports/YYYY-MM-DD-security-watch.md` only when `cadence.watch.triggerIf` has a verified high-signal security hit. Empty days should not create or modify a report.
 
+For `config/global-news-sources.json`, the automation should write `reports/YYYY-MM-DD-global-news-digest.md` every day. Quiet days should produce a short ranked list of the few verified developments that matter globally, plus what to watch next, instead of padding routine headlines.
+
 For `config/markets-sources.json`, the automation should write `reports/YYYY-MM-DD-markets-digest.md` every day. Quiet days should produce a short, calm report that explains the current market focus instead of forcing weak or speculative stories.
 
 Recommended report paths:
@@ -251,6 +259,7 @@ reports/YYYY-MM-DD-tech-ai-digest.md
 reports/YYYY-MM-DD-gaming-weekly.md
 reports/YYYY-MM-DD-ai-products-digest.md
 reports/YYYY-MM-DD-security-watch.md
+reports/YYYY-MM-DD-global-news-digest.md
 reports/YYYY-MM-DD-startup-radar.md
 reports/YYYY-MM-DD-markets-digest.md
 ```

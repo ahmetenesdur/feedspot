@@ -28,6 +28,12 @@
       "webhookEnv": "DISCORD_SECURITY_WATCH_WEBHOOK_URL"
     },
     {
+      "name": "global-news",
+      "match": "-global-news-digest.md",
+      "webhookEnv": "DISCORD_GLOBAL_NEWS_WEBHOOK_URL",
+      "fallbackWebhookEnv": "DISCORD_WEBHOOK_URL"
+    },
+    {
       "name": "startup-radar",
       "match": "-startup-radar.md",
       "webhookEnv": "DISCORD_STARTUP_RADAR_WEBHOOK_URL"

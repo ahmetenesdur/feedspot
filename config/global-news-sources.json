@@ -1,0 +1,215 @@
+{
+  "digest": {
+    "slug": "global-news",
+    "title": "Daily Global News Digest",
+    "reportPathTemplate": "reports/YYYY-MM-DD-global-news-digest.md",
+    "language": "tr"
+  },
+  "cadence": {
+    "primary": {
+      "name": "Daily Global News Digest",
+      "schedule": "daily",
+      "recommendedTime": "09:10 Europe/Istanbul",
+      "lookbackHours": 36,
+      "reportPathTemplate": "reports/YYYY-MM-DD-global-news-digest.md",
+      "postWhenNoMajorNews": true,
+      "guidance": [
+        "Publish a concise ranked list every day, even when the global news cycle is quiet.",
+        "Focus on events with cross-border consequences, policy impact, human impact, or clear follow-up value.",
+        "Avoid routine political noise, opinion-only coverage, celebrity news, local crime without global relevance, and stories already covered without material updates."
+      ]
+    }
+  },
+  "rssLookbackHours": 36,
+  "maxCandidates": 240,
+  "timezone": "Europe/Istanbul",
+  "audience": [
+    "Dünyadaki yüksek etkili gelişmeleri tek Türkçe özetle görmek isteyen power user'lar",
+    "Jeopolitik, diplomasi, seçimler, afetler, sağlık, enerji, regülasyon ve büyük politika kararlarını takip eden okurlar",
+    "Haber akışını gündem kalabalığı değil, doğrulanmış global etki sıralaması olarak tüketmek isteyen kişiler"
+  ],
+  "editorialWorkflow": {
+    "minimumIndependentSourcesForNonPrimaryClaims": 2,
+    "preferPrimarySources": true,
+    "mustOpenAndVerifyCandidateLinks": true,
+    "dedupeBy": [
+      "canonicalUrl",
+      "title",
+      "underlyingEvent",
+      "country",
+      "region",
+      "institution",
+      "person",
+      "policyAction"
+    ],
+    "rankBy": [
+      "cross-border geopolitical, diplomatic, economic, humanitarian, public-health, security, climate, or legal impact",
+      "primary-source confirmation from governments, courts, international organizations, regulators, emergency agencies, or official statements",
+      "breadth of affected people, countries, markets, institutions, or supply chains",
+      "newness and materiality versus already covered background",
+      "clear next-step value: deadline, vote, summit, court ruling, sanctions, ceasefire, evacuation, aid, or policy implementation",
+      "relevance to Turkish readers without turning the digest into domestic politics coverage"
+    ],
+    "rejectIf": [
+      "source link is missing or circular",
+      "claim is only social-media speculation, pundit commentary, or a single unverified rumor",
+      "story is routine domestic politics with no wider global effect",
+      "story is celebrity, crime, lifestyle, sports, or culture news without major international relevance",
+      "date cannot be verified",
+      "same story was already covered in recent automation memory without a material update",
+      "headline is sensational but verified consequences are unclear"
+    ]
+  },
+  "rss": [
+    {
+      "name": "BBC World",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/world/rss.xml"
+    },
+    {
+      "name": "BBC News",
+      "type": "rss",
+      "url": "https://feeds.bbci.co.uk/news/rss.xml"
+    },
+    {
+      "name": "The Guardian World",
+      "type": "rss",
+      "url": "https://www.theguardian.com/world/rss"
+    },
+    {
+      "name": "Al Jazeera",
+      "type": "rss",
+      "url": "https://www.aljazeera.com/xml/rss/all.xml"
+    },
+    {
+      "name": "France 24",
+      "type": "rss",
+      "url": "https://www.france24.com/en/rss"
+    },
+    {
+      "name": "Deutsche Welle",
+      "type": "rss",
+      "url": "https://rss.dw.com/rdf/rss-en-all"
+    },
+    {
+      "name": "NPR World",
+      "type": "rss",
+      "url": "https://feeds.npr.org/1004/rss.xml"
+    },
+    {
+      "name": "CBS World",
+      "type": "rss",
+      "url": "https://www.cbsnews.com/latest/rss/world"
+    },
+    {
+      "name": "ABC News International",
+      "type": "rss",
+      "url": "https://abcnews.go.com/abcnews/internationalheadlines"
+    },
+    {
+      "name": "Sky News World",
+      "type": "rss",
+      "url": "https://feeds.skynews.com/feeds/rss/world.xml"
+    },
+    {
+      "name": "UN News",
+      "type": "rss",
+      "url": "https://news.un.org/feed/subscribe/en/news/all/rss.xml"
+    },
+    {
+      "name": "WHO News",
+      "type": "rss",
+      "url": "https://www.who.int/rss-feeds/news-english.xml"
+    },
+    {
+      "name": "US State Department Press Releases",
+      "type": "rss",
+      "url": "https://www.state.gov/rss-feed/press-releases/feed/"
+    },
+    {
+      "name": "European Commission Press Corner",
+      "type": "rss",
+      "url": "https://ec.europa.eu/commission/presscorner/api/rss"
+    }
+  ],
+  "officialSites": [
+    {
+      "name": "United Nations News",
+      "url": "https://news.un.org/en/"
+    },
+    {
+      "name": "UN Press",
+      "url": "https://press.un.org/en"
+    },
+    {
+      "name": "World Health Organization",
+      "url": "https://www.who.int/news"
+    },
+    {
+      "name": "US State Department",
+      "url": "https://www.state.gov/press-releases/"
+    },
+    {
+      "name": "European Commission Press Corner",
+      "url": "https://ec.europa.eu/commission/presscorner/home/en"
+    },
+    {
+      "name": "NATO Newsroom",
+      "url": "https://www.nato.int/cps/en/natohq/news.htm"
+    },
+    {
+      "name": "International Court of Justice",
+      "url": "https://www.icj-cij.org/news"
+    },
+    {
+      "name": "International Atomic Energy Agency",
+      "url": "https://www.iaea.org/newscenter"
+    },
+    {
+      "name": "UNHCR News",
+      "url": "https://www.unhcr.org/news"
+    },
+    {
+      "name": "World Food Programme",
+      "url": "https://www.wfp.org/news"
+    },
+    {
+      "name": "International Monetary Fund",
+      "url": "https://www.imf.org/en/News"
+    },
+    {
+      "name": "World Bank News",
+      "url": "https://www.worldbank.org/en/news"
+    }
+  ],
+  "webSearch": {
+    "enabled": true,
+    "lookbackHours": 36,
+    "maxQueries": 36,
+    "recencyDays": 2,
+    "queries": [
+      "major world news diplomacy sanctions election conflict ceasefire last 24 hours",
+      "global breaking news geopolitical crisis policy impact last 24 hours",
+      "war ceasefire peace talks sanctions evacuation humanitarian crisis last 24 hours",
+      "major election government collapse protest constitutional crisis latest",
+      "global public health emergency WHO outbreak travel advisory latest",
+      "natural disaster earthquake flood wildfire hurricane international aid latest",
+      "energy supply shock oil gas shipping route geopolitics latest",
+      "international court ruling treaty regulation global impact latest",
+      "UN Security Council resolution sanctions humanitarian aid latest",
+      "Europe US China Russia Middle East Asia Africa diplomatic news latest"
+    ],
+    "officialDomainQueries": [
+      "site:news.un.org OR site:press.un.org Security Council sanctions humanitarian",
+      "site:state.gov press release sanctions diplomacy evacuation",
+      "site:ec.europa.eu/commission/presscorner sanctions regulation humanitarian aid",
+      "site:who.int news outbreak emergency travel advisory",
+      "site:nato.int news defense summit security",
+      "site:iaea.org/newscenter nuclear safety inspection Iran Ukraine",
+      "site:icj-cij.org news ruling order hearing",
+      "site:unhcr.org/news refugees displacement emergency",
+      "site:wfp.org/news food security emergency aid",
+      "site:imf.org/en/News global economy debt crisis"
+    ]
+  }
+}
